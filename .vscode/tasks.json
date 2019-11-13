@@ -10,10 +10,8 @@
                 "-o",
                 "${workspaceFolder}\\bin\\Reader.exe",
                 "-I${workspaceFolder}\\include\\GLFW\\",
-                "-I${workspaceFolder}\\include\\GLEW\\",
                 "-L${workspaceFolder}\\lib\\",
                 "-lglfw3",
-                "-lglew32",
                 "-lgdi32",
                 "-lopengl32"
             ],
