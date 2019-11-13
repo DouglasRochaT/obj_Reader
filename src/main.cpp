@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 
+
 struct screen {
 	int x;
 	int y;
