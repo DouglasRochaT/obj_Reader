@@ -3,11 +3,12 @@
 #define EDITING_NORMAL 2
 
 #include <glfw3.h>
+#include <iostream>
 #include <fstream>
 #include <string>
 
 
-struct screen {
+struct Screen {
 	int x;
 	int y;
 	int wScale;
@@ -26,7 +27,9 @@ struct Point3D {
 };
 
 struct Face {
-	unsigned short int vertex[3];
+	unsigned short int numVertex;
+	unsigned short int vertex[4];
+	unsigned short int texture;
 	unsigned short int normal;
 };
 
@@ -34,6 +37,7 @@ struct Obj {
 	int numVertex;
 	int numNormals;
 	int numFaces;
+	unsigned short int vertexPerFace;
 	Point3D* vertex;
 	Point3D* normal;
 	Face* face;
@@ -42,16 +46,16 @@ struct Obj {
 double zoom = 1;
 void scrollCallBack(GLFWwindow* window, double xOffset, double yOffset) {
 	zoom -= yOffset / 10;
-	if (zoom < 1) {
+	if(zoom < 1) {
 		zoom = 1;
 	}
 }
 
-void mouseButtonCallBack(GLFWwindow *window, int button, int action, int mods) {
+void mouseButtonCallBack(GLFWwindow* window, int button, int action, int mods) {
 }
 
 Point2D getRotationFromCursor(GLFWwindow* window, Point2D currentPos, Point2D oldPos, Point2D currentRot) {
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 		currentRot.x += (currentPos.y - oldPos.y) / 5;
 		currentRot.y += (currentPos.x - oldPos.x) / 5;
 	}
@@ -79,16 +83,34 @@ void drawCompass(Point2D rot){
 	glPopMatrix();
 }
 
+int countElements(std::string filename, std::string identifier){
+	std::ifstream file(filename);
+	std::string id = "";
+	std::string line;
+	int counter = 0;
+	while(id != identifier){ //its not gonna work if its out of order
+		file >> id;
+		std::getline(file, line);
+	}
+	for(int i = 0; line[i + 1] != 0; i++){
+		if(line[i] == ' ' && line[i + 1] != ' '){
+			counter++;
+		}
+	}
+	file.close();
+	return counter;
+}
+
 void drawObj(Obj obj, Point2D rot) {
 	glPushMatrix();
 	glRotated(-rot.x, 1.0, 0.0, 0.0);
 	glRotated(rot.y, 0.0, 1.0, 0.0);
 	glColor3d(1, 1, 1);
 	glEnable(GL_LIGHT0);
-	//VERTEX COUNT PER FACE PSEUDO-CODE
-	if(vertexPerFace == 3){
+
+	if(obj.vertexPerFace == 3){
 		glBegin(GL_TRIANGLES);
-	} else if(vertexPerFace == 4){
+	} else if (obj.vertexPerFace == 4){
 		glBegin(GL_QUADS);
 	} else {
 		glBegin(GL_POLYGON);
@@ -100,13 +122,14 @@ void drawObj(Obj obj, Point2D rot) {
 		glVertex3d(obj.vertex[obj.face[i].vertex[0]].x / zoom, obj.vertex[obj.face[i].vertex[0]].y / zoom, obj.vertex[obj.face[i].vertex[0]].z / zoom);
 		glVertex3d(obj.vertex[obj.face[i].vertex[1]].x / zoom, obj.vertex[obj.face[i].vertex[1]].y / zoom, obj.vertex[obj.face[i].vertex[1]].z / zoom);
 		glVertex3d(obj.vertex[obj.face[i].vertex[2]].x / zoom, obj.vertex[obj.face[i].vertex[2]].y / zoom, obj.vertex[obj.face[i].vertex[2]].z / zoom);
-		glVertex3d(obj.vertex[obj.face[i].vertex[3]].x / zoom, obj.vertex[obj.face[i].vertex[3]].y / zoom, obj.vertex[obj.face[i].vertex[3]].z / zoom);
+		if(obj.vertexPerFace == 4){
+			glVertex3d(obj.vertex[obj.face[i].vertex[3]].x / zoom, obj.vertex[obj.face[i].vertex[3]].y / zoom, obj.vertex[obj.face[i].vertex[3]].z / zoom);
+		}
 	}
 	glEnd();
 	glPopMatrix();
 }
 
-//davi
 int countLines(std::string filename, std::string identifier){
 	std::ifstream file(filename);
 	std::string id;
@@ -120,30 +143,6 @@ int countLines(std::string filename, std::string identifier){
 	return counter;
 }
 
-//douglas
-int getLines(std::string file, std::string type) {
-	std::ifstream arq(file);
-	std::string line = "";
-	int cont = 0;
-	if (type != " ") {
-		for (int lineCont = 0; getline(arq, line); lineCont++) {
-			std::string temp;
-			double x, y, z;
-			arq >> temp >> x >> y >> z;
-			if (temp == type) {
-				cont++;
-			}
-		}
-	}
-	else {
-		for (int lineCont = 0; getline(arq, line); lineCont++) {
-			cont++;
-		}
-	}
-	return cont;
-}
-
-//davi
 void getVertexElements(std::string filename, Point3D* array, std::string identifier){
 	int numElements = countElements(filename, identifier);
 	std::string id, x, y, z, w;
@@ -165,9 +164,8 @@ void getVertexElements(std::string filename, Point3D* array, std::string identif
 	file.close();
 }
 
-//davi
-void getFaceElements(std::string filename, Face* array){
-	unsigned short int vertexPerFace = countElements(filename, "f");
+void getFaceElements(std::string filename, Obj &obj){
+	obj.vertexPerFace = countElements(filename, "f");
 	std::ifstream file(filename);
 	std::string line;
 	std::string id = "";
@@ -180,11 +178,11 @@ void getFaceElements(std::string filename, Face* array){
 		//face identifier
 		if(id == "f"){
 			for(int i = 1; line[i] != 0; i++){
-				//currentFace incrementer and currentVertex resetter
-				if(currentVertex == vertexPerFace){
-					currentFace++;
-					currentVertex = 0;
-				}
+			//currentFace incrementer and currentVertex resetter
+			if(currentVertex == obj.vertexPerFace){
+				currentFace++;
+				currentVertex = 0;
+			}
 				//element identifier
 				if(editing == EDITING_NORMAL && line[i - 1] == ' ' && line[i] != ' '){
 					editing = EDITING_VERTEX;
@@ -197,14 +195,14 @@ void getFaceElements(std::string filename, Face* array){
 				//element "builder" (if isn't '/' or ' ')
 				if(!(line[i] == '/' || line[i] == ' ')){
 					temp += line[i];
-					//element applier (if is '/' or ' ' and has something in temp)
+				//element applier (if is '/' or ' ' and has something in temp)
 				} else if(temp != ""){
 					if(editing == EDITING_VERTEX){
-						array[currentFace].vertex[currentVertex] = stod(temp) - 1;
+						obj.face[currentFace].vertex[currentVertex] = stod(temp) - 1;
 					} else if(editing == EDITING_TEXTURE){
-						array[currentFace].texture = stod(temp) - 1;
+						obj.face[currentFace].texture = stod(temp) - 1;
 					} else if(editing == EDITING_NORMAL){
-						array[currentFace].normal = stod(temp) - 1;
+						obj.face[currentFace].normal = stod(temp) - 1;
 					}
 					temp = "";
 				}
@@ -213,41 +211,15 @@ void getFaceElements(std::string filename, Face* array){
 	}
 }
 
-//douglas
-void readFile(Obj &obj) {
-	std::fstream arq;
-	arq.open("resources/cube.obj");
-	obj.vertex = new Point3D[getLines("resources/cube.obj", "v")];
-	obj.normal = new Point3D[getLines("resources/cube.obj", "vn")];
-	obj.face = new Face[getLines("resources/cube.obj", "f")];
-	int cont[3] = {0, 0, 0};
-	std::string temp;
-	std::string x, y, z;
-
-	for (int i = 0; i < getLines("resources/cube.obj", " "); i++) {
-		arq >> temp >> x >> y >> z;
-		if(temp == "v"){
-			obj.vertex[cont[0]] = {std::stod(x), std::stod(y), std::stod(z)};
-			cont[0]++;
-		}else if(temp == "vn"){
-			obj.normal[cont[1]] = {std::stod(x), std::stod(y), std::stod(z)};
-			cont[1]++;
-		}else if(temp == "f"){
-			
-		}
-	}
-}*/
-
 int main() {
 
-	std::string filename = "cube.obj";
+	std::string filename = "resources/hexa.obj";
 
 	Obj object;
 
 	object.numVertex = countLines(filename, "v");
 	object.numNormals = countLines(filename, "vn");
 	object.numFaces = countLines(filename, "f");
-
 
 	object.vertex = new Point3D[object.numVertex];
 	if(object.numNormals > 0){
@@ -260,7 +232,7 @@ int main() {
 	std::cout << "Loading normals...\n";
 	getVertexElements(filename, object.normal, "vn");
 	std::cout << "Loading faces...\n";
-	getFaceElements(filename, object.face);
+	getFaceElements(filename, object);
 	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 180, 180 };
 
 	glfwInit();
