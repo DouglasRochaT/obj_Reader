@@ -1,6 +1,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
+#include <glfw3.h>
 #include "structs.h"
 
 void drawCompass(Point2D rot);

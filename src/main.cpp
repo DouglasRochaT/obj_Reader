@@ -9,7 +9,7 @@
 
 int main() {
 
-	std::string filename = "resources/hexa.obj";
+	std::string filename = "handgun.obj";
 
 	Obj object;
 	object.numVertex = countLines(filename, "v");
@@ -24,15 +24,37 @@ int main() {
 	std::cout << "Loading vertexes...\n";
 	getVertexElements(filename, object.vertex, "v");
 	std::cout << "Loading normals...\n";
-	getVertexElements(filename, object.normal, "vn");
+	if(object.numNormals > 0){
+		getVertexElements(filename, object.normal, "vn");
+	}
 	std::cout << "Loading faces...\n";
+	getVertexPerFace(filename, object);
 	getFaceElements(filename, object);
-	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 180, 180 };
+
+
+	std::cout << "Number of Vertex: " << object.numVertex << "\nNum of Normals: " << object.numNormals << "\nNumber of Faces: " << object.numFaces << '\n';
+
+	/*for(int i = 0; i < object.numVertex; i++){
+		std::cout << "Vertex " << i << ":\n";
+		std::cout << object.vertex[i].x << ", " << object.vertex[i].y << ", " << object.vertex[i].z << "\n\n";
+	}
+
+	for(int i = 0; i < object.numFaces; i++){
+		std::cout << "Face " << i << " (" << object.face[i].vertexPerFace << " vertex):\n";
+		for(int j = 0; j < object.face[i].vertexPerFace; j++){
+			std::cout << "Vertex " << object.face[i].vertex[j] << ":\n";
+			std::cout << object.vertex[object.face[i].vertex[j]].x << ", " << object.vertex[object.face[i].vertex[j]].y << ", " << object.vertex[object.face[i].vertex[j]].z << "\n";
+		}
+		std::cout << "\n\n";
+	}*/
+
+
+	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 0, 0 };
 
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(800, 600, "WINDOLOS", NULL, NULL);
 	glfwMakeContextCurrent(window);
-	double zoom = 1; void *zoomp = &zoom;
+	double zoom = 1; void* zoomp = &zoom;
 	glfwSetWindowUserPointer(window, zoomp);
 
 	renderSettings();

@@ -20,11 +20,10 @@ struct Point3D {
 };
 
 struct Face {
-	unsigned short int numVertex;
-	unsigned short int vertex[4];
+	unsigned short int vertexPerFace;
+	unsigned short int* vertex;
 	unsigned short int texture;
 	unsigned short int normal;
-	unsigned short int vertexPerFace;
 };
 
 struct Obj {

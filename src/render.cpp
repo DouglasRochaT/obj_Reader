@@ -14,10 +14,10 @@ void drawCompass(Point2D rot){
 	glBegin(GL_LINES);
 	glColor3d(255, 0, 0);
 	glVertex3d(-0.90, -0.90, 0.0);
-	glVertex3d(-1.0, -0.90, 0.0);
+	glVertex3d(-0.80, -0.90, 0.0);
 	glColor3d(0, 255, 0);
 	glVertex3d(-0.90, -0.90, 0.0);
-	glVertex3d(-0.90, -1.0, 0.0);
+	glVertex3d(-0.90, -0.80, 0.0);
 	glColor3d(0, 0, 255);
 	glVertex3d(-0.90, -0.90, 0.0);
 	glVertex3d(-0.90, -0.90, -0.10);
@@ -35,25 +35,25 @@ void drawObj(Obj obj, Point2D rot, GLFWwindow* window) {
 	glEnable(GL_LIGHT0);
 
 	for(int i = 0; i < obj.numFaces; i++) {
+
+		/*std::cout << "Face " << i+1 << ":\n";
+		std::cout << "Number of vertex: " << obj.face[i].vertexPerFace << ";\n";
+		std::cout << "Vertex texture: " << obj.face[i].texture << ";\n";
+		std::cout << "Vertex normal: " << obj.face[i].normal << ";\n";
+		for(int j = 0; j < obj.face[i].vertexPerFace; j++){
+			std::cout << "Vertex " << obj.face[i].vertex[j] << "(" << obj.vertex[obj.face[i].vertex[j]].x << ", " << obj.vertex[obj.face[i].vertex[j]].y << ", " << obj.vertex[obj.face[i].vertex[j]].z << ")\n";
+		}
+		std::cout << "\n\n";*/
+
 		if(obj.numNormals > 0){
 			glNormal3d(obj.normal[obj.face[i].normal].x, obj.normal[obj.face[i].normal].y, obj.normal[obj.face[i].normal].z);
 		}
-		if(obj.face[i].vertexPerFace == 3){
-			glBegin(GL_TRIANGLES);
-		} else if (obj.face[i].vertexPerFace == 4){
-			glBegin(GL_QUADS);
-		} else {
-			glBegin(GL_POLYGON);
+		glBegin(GL_POLYGON);
+		for(int j = 0; j < obj.face[i].vertexPerFace; j++){
+			glVertex3d(obj.vertex[obj.face[i].vertex[j]].x / *zoom, obj.vertex[obj.face[i].vertex[j]].y / *zoom, obj.vertex[obj.face[i].vertex[j]].z / *zoom);
 		}
-		//std::cout <<"Face: "<<i<< " X: " << obj.vertex[obj.face[i].vertex[0]].x<< " Y: " << obj.vertex[obj.face[i].vertex[0]].y<< " Z: " << obj.vertex[obj.face[i].vertex[0]].z<<std::endl;
-		glVertex3d(obj.vertex[obj.face[i].vertex[0]].x / *zoom, obj.vertex[obj.face[i].vertex[0]].y / *zoom, obj.vertex[obj.face[i].vertex[0]].z / *zoom);
-		glVertex3d(obj.vertex[obj.face[i].vertex[1]].x / *zoom, obj.vertex[obj.face[i].vertex[1]].y / *zoom, obj.vertex[obj.face[i].vertex[1]].z / *zoom);
-		glVertex3d(obj.vertex[obj.face[i].vertex[2]].x / *zoom, obj.vertex[obj.face[i].vertex[2]].y / *zoom, obj.vertex[obj.face[i].vertex[2]].z / *zoom);
-		if(obj.face[i].vertexPerFace == 4){
-			glVertex3d(obj.vertex[obj.face[i].vertex[3]].x / *zoom, obj.vertex[obj.face[i].vertex[3]].y / *zoom, obj.vertex[obj.face[i].vertex[3]].z / *zoom);
-		}
+		glEnd();
 	}
-	glEnd();
 	glPopMatrix();
 }
 
