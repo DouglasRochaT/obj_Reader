@@ -4,6 +4,7 @@
 
 #include <string>
 #include <fstream>
+#include <iostream>
 #include "structs.h"
 
 int countLines(std::string filename, std::string identifier){
@@ -37,6 +38,27 @@ int countElements(std::string filename, std::string identifier){
 	return counter;
 }
 
+int getVertexPerFace(std::string filename, int numFace){
+	std::ifstream file(filename);
+	std::string id = "";
+	std::string line;
+	int counter = 0;
+	while(id != "f"){
+		file >> id;
+		std::getline(file, line);
+	}
+	for(int i = 0; i < numFace; i++){
+		std::getline(file, line);
+	}
+	for(int i = 0; line[i + 1] != 0; i++){
+		if(line[i] == ' ' && line[i + 1] != ' '){
+			counter++;
+		}
+	}
+	file.close();
+	return counter;
+}
+
 void getVertexElements(std::string filename, Point3D* array, std::string identifier){
 	int numElements = countElements(filename, identifier);
 	std::string id, x, y, z, w;
@@ -59,7 +81,9 @@ void getVertexElements(std::string filename, Point3D* array, std::string identif
 }
 
 void getFaceElements(std::string filename, Obj &obj){
-	obj.vertexPerFace = countElements(filename, "f");
+	for(int i = 0; i < obj.numFaces; i++){
+		obj.face[i].vertexPerFace = getVertexPerFace(filename, i);
+	}
 	std::ifstream file(filename);
 	std::string line;
 	std::string id = "";
@@ -73,10 +97,10 @@ void getFaceElements(std::string filename, Obj &obj){
 		if(id == "f"){
 			for(int i = 1; line[i] != 0; i++){
 			//currentFace incrementer and currentVertex resetter
-			if(currentVertex == obj.vertexPerFace){
-				currentFace++;
-				currentVertex = 0;
-			}
+				if(currentVertex == obj.face[currentFace].vertexPerFace){
+					currentFace++;
+					currentVertex = 0;
+				}
 				//element identifier
 				if(editing == EDITING_NORMAL && line[i - 1] == ' ' && line[i] != ' '){
 					editing = EDITING_VERTEX;

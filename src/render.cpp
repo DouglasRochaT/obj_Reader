@@ -1,5 +1,6 @@
 #include <glfw3.h>
 #include "structs.h"
+#include <iostream>
 
 void drawCompass(Point2D rot){
 	glLineWidth(2.0);
@@ -33,21 +34,22 @@ void drawObj(Obj obj, Point2D rot, GLFWwindow* window) {
 	glColor3d(1, 1, 1);
 	glEnable(GL_LIGHT0);
 
-	if(obj.vertexPerFace == 3){
-		glBegin(GL_TRIANGLES);
-	} else if (obj.vertexPerFace == 4){
-		glBegin(GL_QUADS);
-	} else {
-		glBegin(GL_POLYGON);
-	}
 	for(int i = 0; i < obj.numFaces; i++) {
 		if(obj.numNormals > 0){
 			glNormal3d(obj.normal[obj.face[i].normal].x, obj.normal[obj.face[i].normal].y, obj.normal[obj.face[i].normal].z);
 		}
+		if(obj.face[i].vertexPerFace == 3){
+			glBegin(GL_TRIANGLES);
+		} else if (obj.face[i].vertexPerFace == 4){
+			glBegin(GL_QUADS);
+		} else {
+			glBegin(GL_POLYGON);
+		}
+		//std::cout <<"Face: "<<i<< " X: " << obj.vertex[obj.face[i].vertex[0]].x<< " Y: " << obj.vertex[obj.face[i].vertex[0]].y<< " Z: " << obj.vertex[obj.face[i].vertex[0]].z<<std::endl;
 		glVertex3d(obj.vertex[obj.face[i].vertex[0]].x / *zoom, obj.vertex[obj.face[i].vertex[0]].y / *zoom, obj.vertex[obj.face[i].vertex[0]].z / *zoom);
 		glVertex3d(obj.vertex[obj.face[i].vertex[1]].x / *zoom, obj.vertex[obj.face[i].vertex[1]].y / *zoom, obj.vertex[obj.face[i].vertex[1]].z / *zoom);
 		glVertex3d(obj.vertex[obj.face[i].vertex[2]].x / *zoom, obj.vertex[obj.face[i].vertex[2]].y / *zoom, obj.vertex[obj.face[i].vertex[2]].z / *zoom);
-		if(obj.vertexPerFace == 4){
+		if(obj.face[i].vertexPerFace == 4){
 			glVertex3d(obj.vertex[obj.face[i].vertex[3]].x / *zoom, obj.vertex[obj.face[i].vertex[3]].y / *zoom, obj.vertex[obj.face[i].vertex[3]].z / *zoom);
 		}
 	}

@@ -5,7 +5,9 @@
 
 int countLines(std::string filename, std::string identifier);
 int countElements(std::string filename, std::string identifier);
+int getVertexPerFace(std::string filename, int numFace);
 void getVertexElements(std::string filename, Point3D* array, std::string identifier);
 void getFaceElements(std::string filename, Obj &obj);
+
 
 #endif // RESOURCES_H

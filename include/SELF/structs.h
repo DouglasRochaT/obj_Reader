@@ -24,13 +24,13 @@ struct Face {
 	unsigned short int vertex[4];
 	unsigned short int texture;
 	unsigned short int normal;
+	unsigned short int vertexPerFace;
 };
 
 struct Obj {
 	int numVertex;
 	int numNormals;
 	int numFaces;
-	unsigned short int vertexPerFace;
 	Point3D* vertex;
 	Point3D* normal;
 	Face* face;
