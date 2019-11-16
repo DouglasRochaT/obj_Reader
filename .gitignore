@@ -1,1 +1,4 @@
 .vscode/
+OpenGL.vcxproj
+OpenGL.vcxproj.filters
+OpenGL.vcxproj.user
