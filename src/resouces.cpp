@@ -7,7 +7,7 @@
 #include <iostream>
 #include "structs.h"
 
-int countLines(std::string filename, std::string identifier){
+/*int countLines(std::string filename, std::string identifier){
 	std::ifstream file(filename);
 	std::string id;
 	int counter = 0;
@@ -18,6 +18,21 @@ int countLines(std::string filename, std::string identifier){
 	}
 	file.close();
 	return counter;
+}*/
+
+void countLines(std::string filename, Obj &obj){
+	std::ifstream file(filename);
+	std::string id;
+	while(file >> id){
+		if(id == "v"){
+			obj.numVertex += 1;
+		}else if(id == "vn"){
+			obj.numNormals += 1;
+		}else if(id == "f"){
+			obj.numFaces += 1;
+		}
+	}
+	file.close();
 }
 
 int countElements(std::string filename, std::string identifier){
@@ -61,6 +76,7 @@ void getVertexPerFace(std::string filename, Obj &obj){
 }
 
 void getVertexElements(std::string filename, Obj &obj, std::string identifier){
+	if (obj.numNormals == 0 && identifier == "vn") return;
 	int numElements = countElements(filename, identifier);
 	double maxX = -10000, minX = 10000;
 	double maxY = -10000, minY = 10000;

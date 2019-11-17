@@ -4,7 +4,8 @@
 #include <iostream>
 #include "structs.h"
 
-int countLines(std::string filename, std::string identifier);
+//int countLines(std::string filename, std::string identifier);
+void countLines(std::string filename, Obj &obj);
 int countElements(std::string filename, std::string identifier);
 void getVertexPerFace(std::string filename, Obj &obj);
 void getVertexElements(std::string filename, Obj &obj, std::string identifier);

@@ -27,9 +27,9 @@ struct Face {
 };
 
 struct Obj {
-	int numVertex;
-	int numNormals;
-	int numFaces;
+	int numVertex = 0;
+	int numNormals = 0;
+	int numFaces = 0;
 	Point3D offset;
 	Point3D* vertex;
 	Point3D* normal;

@@ -8,13 +8,23 @@
 #include "input.h"
 
 int main() {
-
-	std::string filename = "BMW.obj";
-
 	Obj object;
-	object.numVertex = countLines(filename, "v");
+	std::string filename = "resources/cat.obj";
+	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 0, 0 };
+
+	countLines(filename, object);
+	object.vertex = new Point3D[object.numVertex];
+	getVertexElements(filename, object, "v");
+	object.normal = new Point3D[object.numNormals];
+	getVertexElements(filename, object, "vn");
+	object.face = new Face[object.numFaces];
+	getVertexPerFace(filename, object);
+	getFaceElements(filename, object);
+
+	/*object.numVertex = countLines(filename, "v");
 	object.numNormals = countLines(filename, "vn");
 	object.numFaces = countLines(filename, "f");
+	countLines(filename, object);
 	object.vertex = new Point3D[object.numVertex];
 	if(object.numNormals > 0){ object.normal = new Point3D[object.numNormals]; }
 	object.face = new Face[object.numFaces];
@@ -28,10 +38,7 @@ int main() {
 	std::cout << "Loading faces...\n";
 	getVertexPerFace(filename, object);
 	getFaceElements(filename, object);
-	std::cout << "Loaded " << object.numFaces << " faces!\n\n";
-
-	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 0, 0 };
-
+	std::cout << "Loaded " << object.numFaces << " faces!\n\n";*/
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(800, 600, "WINDOLOS", NULL, NULL);
 	glfwMakeContextCurrent(window);
