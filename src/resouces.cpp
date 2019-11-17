@@ -119,10 +119,17 @@ void getFaceElements(std::string filename, Obj &obj){
 	std::string id = "";
 	int currentVertex = -1;
 	int currentFace = 0;
+	int numVertexPassed = 0, numNormalsPassed = 0;
 	std::string temp;
 	while(file >> id){
 		std::getline(file, line);
 		int editing = EDITING_NORMAL;
+		if(id == "v"){
+			numVertexPassed++;
+		}
+		if(id == "vn"){
+			numNormalsPassed++;
+		}
 		//face identifier
 		if(id == "f"){
 			for(int i = 1; line[i] != 0; i++){
@@ -149,11 +156,11 @@ void getFaceElements(std::string filename, Obj &obj){
 				//element applier (if is '/' or ' ' and has something in temp)
 				} else if(temp != ""){
 					if(editing == EDITING_VERTEX){
-						obj.face[currentFace].vertex[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
+						obj.face[currentFace].vertex[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numVertexPassed - abs(stoi(temp));
 					} else if(editing == EDITING_TEXTURE){
-						obj.face[currentFace].texture = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp)) + 1;
+						obj.face[currentFace].texture = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
 					} else if(editing == EDITING_NORMAL){
-						obj.face[currentFace].normal = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp)) + 1;
+						obj.face[currentFace].normal = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
 					}
 				}
 			}

@@ -9,7 +9,7 @@
 
 int main() {
 
-	std::string filename = "house.obj";
+	std::string filename = "BMW.obj";
 
 	Obj object;
 	object.numVertex = countLines(filename, "v");

@@ -5,8 +5,8 @@ void scrollCallBack(GLFWwindow* window, double xOffset, double yOffset) {
 	void* zoomp = glfwGetWindowUserPointer(window);
 	double *zoom = static_cast<double*>(zoomp);
 	*zoom -= yOffset / 10;
-	if(*zoom < 1) {
-		*zoom = 1;
+	if(*zoom < 0.1) {
+		*zoom = 0.1;
 	}
 }
 
