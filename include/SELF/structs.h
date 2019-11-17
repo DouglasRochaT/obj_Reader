@@ -30,6 +30,7 @@ struct Obj {
 	int numVertex;
 	int numNormals;
 	int numFaces;
+	Point3D offset;
 	Point3D* vertex;
 	Point3D* normal;
 	Face* face;

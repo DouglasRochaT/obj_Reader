@@ -10,8 +10,7 @@ void scrollCallBack(GLFWwindow* window, double xOffset, double yOffset) {
 	}
 }
 
-void mouseButtonCallBack(GLFWwindow* window, int button, int action, int mods) {
-}
+void mouseButtonCallBack(GLFWwindow* window, int button, int action, int mods) {}
 
 Point2D getRotationFromCursor(GLFWwindow* window, Point2D currentPos, Point2D oldPos, Point2D currentRot) {
 	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
@@ -22,7 +21,6 @@ Point2D getRotationFromCursor(GLFWwindow* window, Point2D currentPos, Point2D ol
 }
 
 void inputSettings(GLFWwindow* window){
-	//input
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetScrollCallback(window, scrollCallBack);
 	glfwSetMouseButtonCallback(window, mouseButtonCallBack);

@@ -31,20 +31,10 @@ void drawObj(Obj obj, Point2D rot, GLFWwindow* window) {
 	glPushMatrix();
 	glRotated(-rot.x, 1.0, 0.0, 0.0);
 	glRotated(rot.y, 0.0, 1.0, 0.0);
+	glTranslated(-obj.offset.x / *zoom, -obj.offset.y / *zoom, -obj.offset.z / *zoom);
 	glColor3d(1, 1, 1);
 	glEnable(GL_LIGHT0);
-
 	for(int i = 0; i < obj.numFaces; i++) {
-
-		/*std::cout << "Face " << i+1 << ":\n";
-		std::cout << "Number of vertex: " << obj.face[i].vertexPerFace << ";\n";
-		std::cout << "Vertex texture: " << obj.face[i].texture << ";\n";
-		std::cout << "Vertex normal: " << obj.face[i].normal << ";\n";
-		for(int j = 0; j < obj.face[i].vertexPerFace; j++){
-			std::cout << "Vertex " << obj.face[i].vertex[j] << "(" << obj.vertex[obj.face[i].vertex[j]].x << ", " << obj.vertex[obj.face[i].vertex[j]].y << ", " << obj.vertex[obj.face[i].vertex[j]].z << ")\n";
-		}
-		std::cout << "\n\n";*/
-
 		if(obj.numNormals > 0){
 			glNormal3d(obj.normal[obj.face[i].normal].x, obj.normal[obj.face[i].normal].y, obj.normal[obj.face[i].normal].z);
 		}
@@ -58,7 +48,6 @@ void drawObj(Obj obj, Point2D rot, GLFWwindow* window) {
 }
 
 void renderSettings(){
-	//light
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);

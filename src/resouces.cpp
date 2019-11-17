@@ -25,7 +25,7 @@ int countElements(std::string filename, std::string identifier){
 	std::string id = "";
 	std::string line;
 	int counter = 0;
-	while(id != identifier){ //its not gonna work if its out of order
+	while(id != identifier){
 		file >> id;
 		std::getline(file, line);
 	}
@@ -37,27 +37,6 @@ int countElements(std::string filename, std::string identifier){
 	file.close();
 	return counter;
 }
-
-/*int getVertexPerFace(std::string filename, int numFace){
-	std::ifstream file(filename);
-	std::string id = "";
-	std::string line;
-	int counter = 0;
-	while(id != "f"){
-		file >> id;
-		std::getline(file, line);
-	}
-	for(int i = 0; i < numFace; i++){
-		std::getline(file, line);
-	}
-	for(int i = 0; line[i + 1] != 0; i++){
-		if(line[i] == ' ' && line[i + 1] != ' '){
-			counter++;
-		}
-	}
-	file.close();
-	return counter;
-}*/
 
 void getVertexPerFace(std::string filename, Obj &obj){
 	std::ifstream file(filename);
@@ -74,7 +53,6 @@ void getVertexPerFace(std::string filename, Obj &obj){
 				}
 			}
 			obj.face[currentFace].vertexPerFace = counter;
-			//std::cout << counter << '\n';
 			obj.face[currentFace].vertex = new unsigned short int[counter];
 			currentFace++;
 		}
@@ -82,8 +60,11 @@ void getVertexPerFace(std::string filename, Obj &obj){
 	file.close();
 }
 
-void getVertexElements(std::string filename, Point3D* array, std::string identifier){
+void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 	int numElements = countElements(filename, identifier);
+	double maxX = -10000, minX = 10000;
+	double maxY = -10000, minY = 10000;
+	double maxZ = -10000, minZ = 10000;
 	std::string id, x, y, z, w;
 	int current = 0;
 	std::ifstream file(filename);
@@ -94,11 +75,40 @@ void getVertexElements(std::string filename, Point3D* array, std::string identif
 			} else if(numElements == 4){
 				file >> x >> y >> z >> w;
 			}
-			array[current].x = stod(x);
-			array[current].y = stod(y);
-			array[current].z = stod(z);
+			if(identifier == "v"){
+				obj.vertex[current].x = stod(x);
+				if(stod(x) > maxX){
+					maxX = stod(x);
+				}
+				if(stod(x) < minX){
+					minX = stod(x);
+				}
+				obj.vertex[current].y = stod(y);
+				if(stod(y) > maxY){
+					maxY = stod(y);
+				}
+				if(stod(y) < minY){
+					minY = stod(y);
+				}
+				obj.vertex[current].z = stod(z);
+				if(stod(z) > maxZ){
+					maxZ = stod(z);
+				}
+				if(stod(z) < minZ){
+					minZ = stod(z);
+				}
+			} else if(identifier == "vn"){
+				obj.normal[current].x = stod(x);
+				obj.normal[current].y = stod(y);
+				obj.normal[current].z = stod(z);
+			}
 			current++;
 		}
+	}
+	if(identifier == "v"){
+		obj.offset.x = minX + ((maxX - minX) / 2);
+		obj.offset.y = minY + ((maxY - minY) / 2);
+		obj.offset.z = minZ + ((maxZ - minZ) / 2);
 	}
 	file.close();
 }
@@ -139,11 +149,11 @@ void getFaceElements(std::string filename, Obj &obj){
 				//element applier (if is '/' or ' ' and has something in temp)
 				} else if(temp != ""){
 					if(editing == EDITING_VERTEX){
-						obj.face[currentFace].vertex[currentVertex] = abs(stoi(temp) - 1);
+						obj.face[currentFace].vertex[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
 					} else if(editing == EDITING_TEXTURE){
-						obj.face[currentFace].texture = abs(stoi(temp) - 1);
+						obj.face[currentFace].texture = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp)) + 1;
 					} else if(editing == EDITING_NORMAL){
-						obj.face[currentFace].normal = abs(stoi(temp) - 1);
+						obj.face[currentFace].normal = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp)) + 1;
 					}
 				}
 			}

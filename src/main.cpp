@@ -9,52 +9,33 @@
 
 int main() {
 
-	std::string filename = "resources/swords.obj";
+	std::string filename = "house.obj";
 
 	Obj object;
 	object.numVertex = countLines(filename, "v");
 	object.numNormals = countLines(filename, "vn");
 	object.numFaces = countLines(filename, "f");
 	object.vertex = new Point3D[object.numVertex];
-	if(object.numNormals > 0){
-		object.normal = new Point3D[object.numNormals];
-	}
+	if(object.numNormals > 0){ object.normal = new Point3D[object.numNormals]; }
 	object.face = new Face[object.numFaces];
 
 	std::cout << "Loading vertexes...\n";
-	getVertexElements(filename, object.vertex, "v");
+	getVertexElements(filename, object, "v");
+	std::cout << "Loaded " << object.numVertex << " vertex!\n\n";
 	std::cout << "Loading normals...\n";
-	if(object.numNormals > 0){
-		getVertexElements(filename, object.normal, "vn");
-	}
+	if(object.numNormals > 0){ getVertexElements(filename, object, "vn"); }
+	std::cout << "Loaded " << object.numNormals << " normals!\n\n";
 	std::cout << "Loading faces...\n";
 	getVertexPerFace(filename, object);
 	getFaceElements(filename, object);
-
-
-	std::cout << "Number of Vertex: " << object.numVertex << "\nNum of Normals: " << object.numNormals << "\nNumber of Faces: " << object.numFaces << '\n';
-
-	/*for(int i = 0; i < object.numVertex; i++){
-		std::cout << "Vertex " << i << ":\n";
-		std::cout << object.vertex[i].x << ", " << object.vertex[i].y << ", " << object.vertex[i].z << "\n\n";
-	}
-
-	for(int i = 0; i < object.numFaces; i++){
-		std::cout << "Face " << i << " (" << object.face[i].vertexPerFace << " vertex):\n";
-		for(int j = 0; j < object.face[i].vertexPerFace; j++){
-			std::cout << "Vertex " << object.face[i].vertex[j] << ":\n";
-			std::cout << object.vertex[object.face[i].vertex[j]].x << ", " << object.vertex[object.face[i].vertex[j]].y << ", " << object.vertex[object.face[i].vertex[j]].z << "\n";
-		}
-		std::cout << "\n\n";
-	}*/
-
+	std::cout << "Loaded " << object.numFaces << " faces!\n\n";
 
 	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 0, 0 };
 
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(800, 600, "WINDOLOS", NULL, NULL);
 	glfwMakeContextCurrent(window);
-	double zoom = 1; void* zoomp = &zoom;
+	double zoom = object.offset.y * 2; void* zoomp = &zoom;
 	glfwSetWindowUserPointer(window, zoomp);
 
 	renderSettings();
