@@ -7,19 +7,6 @@
 #include <iostream>
 #include "structs.h"
 
-/*int countLines(std::string filename, std::string identifier){
-	std::ifstream file(filename);
-	std::string id;
-	int counter = 0;
-	while(file >> id){
-		if(id == identifier){
-			counter++;
-		}
-	}
-	file.close();
-	return counter;
-}*/
-
 void countLines(std::string filename, Obj &obj){
 	std::ifstream file(filename);
 	std::string id;
@@ -69,6 +56,7 @@ void getVertexPerFace(std::string filename, Obj &obj){
 			}
 			obj.face[currentFace].vertexPerFace = counter;
 			obj.face[currentFace].vertex = new unsigned short int[counter];
+			obj.face[currentFace].normal = new unsigned short int[counter];
 			currentFace++;
 		}
 	}
@@ -92,27 +80,18 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 				file >> x >> y >> z >> w;
 			}
 			if(identifier == "v"){
+				//---x---//
 				obj.vertex[current].x = stod(x);
-				if(stod(x) > maxX){
-					maxX = stod(x);
-				}
-				if(stod(x) < minX){
-					minX = stod(x);
-				}
+				if(stod(x) > maxX){maxX = stod(x);}
+				if(stod(x) < minX){minX = stod(x);}
+				//---y---//
 				obj.vertex[current].y = stod(y);
-				if(stod(y) > maxY){
-					maxY = stod(y);
-				}
-				if(stod(y) < minY){
-					minY = stod(y);
-				}
+				if(stod(y) > maxY){maxY = stod(y);}
+				if(stod(y) < minY){minY = stod(y);}
+				//---z---//
 				obj.vertex[current].z = stod(z);
-				if(stod(z) > maxZ){
-					maxZ = stod(z);
-				}
-				if(stod(z) < minZ){
-					minZ = stod(z);
-				}
+				if(stod(z) > maxZ){maxZ = stod(z);}
+				if(stod(z) < minZ){minZ = stod(z);}
 			} else if(identifier == "vn"){
 				obj.normal[current].x = stod(x);
 				obj.normal[current].y = stod(y);
@@ -140,12 +119,8 @@ void getFaceElements(std::string filename, Obj &obj){
 	while(file >> id){
 		std::getline(file, line);
 		int editing = EDITING_NORMAL;
-		if(id == "v"){
-			numVertexPassed++;
-		}
-		if(id == "vn"){
-			numNormalsPassed++;
-		}
+		if(id == "v"){numVertexPassed++;}
+		if(id == "vn"){numNormalsPassed++;}
 		//face identifier
 		if(id == "f"){
 			for(int i = 1; line[i] != 0; i++){
@@ -176,10 +151,12 @@ void getFaceElements(std::string filename, Obj &obj){
 					} else if(editing == EDITING_TEXTURE){
 						obj.face[currentFace].texture = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
 					} else if(editing == EDITING_NORMAL){
-						obj.face[currentFace].normal = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
+						obj.face[currentFace].normal[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
 					}
 				}
 			}
+			//---last normal from current line---//
+			obj.face[currentFace].normal[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
 		}
 	}
 }

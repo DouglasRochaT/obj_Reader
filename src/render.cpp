@@ -35,11 +35,9 @@ void drawObj(Obj obj, Point2D rot, GLFWwindow* window) {
 	glColor3d(1, 1, 1);
 	glEnable(GL_LIGHT0);
 	for(int i = 0; i < obj.numFaces; i++) {
-		if(obj.numNormals > 0){
-			glNormal3d(obj.normal[obj.face[i].normal].x, obj.normal[obj.face[i].normal].y, obj.normal[obj.face[i].normal].z);
-		}
 		glBegin(GL_POLYGON);
 		for(int j = 0; j < obj.face[i].vertexPerFace; j++){
+			if(obj.numNormals > 0){ glNormal3d(obj.normal[obj.face[i].normal[j]].x, obj.normal[obj.face[i].normal[j]].y, obj.normal[obj.face[i].normal[j]].z); }
 			glVertex3d(obj.vertex[obj.face[i].vertex[j]].x / *zoom, obj.vertex[obj.face[i].vertex[j]].y / *zoom, obj.vertex[obj.face[i].vertex[j]].z / *zoom);
 		}
 		glEnd();
