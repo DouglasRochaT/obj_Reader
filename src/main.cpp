@@ -1,4 +1,6 @@
-#include <glfw3.h>
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+#include <SDL_opengl.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,47 +9,55 @@
 #include "render.h"
 #include "input.h"
 
-int main() {
-	Obj object;
-	std::string filename = "maya.obj";
-	Point2D mouse = { 0, 0 }, oldMouse = { 0, 0 }, rotation = { 0, 0 };
+void drawEverything(Obj object, Point2D rotation, SDL_Window* mainWindow, double zoom){
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	drawObj(object, rotation, mainWindow, zoom);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	drawCompass(rotation);
+	SDL_GL_SwapWindow(mainWindow);
+}
 
-	countLines(filename, object);
-	object.vertex = new Point3D[object.numVertex];
-	if(object.numNormals > 0){ object.normal = new Point3D[object.numNormals]; }
-	object.face = new Face[object.numFaces];
-
+void loadObj(Obj &obj, std::string filename){
+	countLines(filename, obj);
+	obj.vertex = new Point3D[obj.numVertex];
+	if(obj.numNormals > 0){ obj.normal = new Point3D[obj.numNormals]; }
+	obj.face = new Face[obj.numFaces];
 	std::cout << "Loading vertexes...\n";
-	getVertexElements(filename, object, "v");
-	std::cout << "Loaded " << object.numVertex << " vertex!\n\n";
+	getVertexElements(filename, obj, "v");
+	std::cout << "Loaded " << obj.numVertex << " vertex!\n\n";
 	std::cout << "Loading normals...\n";
-	if(object.numNormals > 0){ getVertexElements(filename, object, "vn"); }
-	std::cout << "Loaded " << object.numNormals << " normals!\n\n";
+	if(obj.numNormals > 0){ getVertexElements(filename, obj, "vn"); }
+	std::cout << "Loaded " << obj.numNormals << " normals!\n\n";
 	std::cout << "Loading faces...\n";
-	getVertexPerFace(filename, object);
-	getFaceElements(filename, object);
-	std::cout << "Loaded " << object.numFaces << " faces!\n\n";
+	getVertexPerFace(filename, obj);
+	getFaceElements(filename, obj);
+	std::cout << "Loaded " << obj.numFaces << " faces!\n\n";
+}
 
+int main() {
+	SDL_Init(SDL_INIT_EVERYTHING);
+	Obj object;
+	std::string filename = "batman.obj";
+	Mouse mouse = { 0, 0, false }, oldMouse = { 0, 0, false };
+	Point2D rotation = { 0, 0 };
 
-	glfwInit();
-	GLFWwindow* window = glfwCreateWindow(800, 600, "WINDOLOS", NULL, NULL);
-	glfwMakeContextCurrent(window);
-	double zoom = object.offset.y * 2; void* zoomp = &zoom;
-	glfwSetWindowUserPointer(window, zoomp);
+	loadObj(object, filename);
+
+	SDL_Window* mainWindow = SDL_CreateWindow("my sdl window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+	SDL_GLContext glContext = SDL_GL_CreateContext(mainWindow);
+	double zoom = (object.offset.y == 0) ? 1 : object.offset.y * 2;
+	bool quit = false;
 
 	renderSettings();
-	inputSettings(window);
+	while(!quit) {
+		eventHandler(quit, zoom, mouse, object);
+		SDL_GetMouseState(&mouse.x, &mouse.y);
+		rotation = getRotationFromCursor(mainWindow, mouse, oldMouse, rotation);
 
-	while(!glfwWindowShouldClose(window)) {
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwGetCursorPos(window, &mouse.x, &mouse.y);
-		rotation = getRotationFromCursor(window, mouse, oldMouse, rotation);
-		drawObj(object, rotation, window);
-		drawCompass(rotation);
-		glfwGetCursorPos(window, &oldMouse.x, &oldMouse.y);
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		drawEverything(object, rotation, mainWindow, zoom);
+		
+		SDL_GetMouseState(&oldMouse.x, &oldMouse.y);
 	}
-	glfwTerminate();
+	SDL_Quit();
 	return 0;
 }

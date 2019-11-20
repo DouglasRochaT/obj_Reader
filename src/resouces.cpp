@@ -8,6 +8,7 @@
 #include "structs.h"
 
 void countLines(std::string filename, Obj &obj){
+	obj.numFaces = 0; obj.numVertex = 0; obj.numNormals = 0;
 	std::ifstream file(filename);
 	std::string id;
 	while(file >> id){

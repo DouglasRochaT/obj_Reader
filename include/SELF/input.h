@@ -1,12 +1,10 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <glfw3.h>
+#include <SDL.h>
 #include "structs.h"
 
-void scrollCallBack(GLFWwindow* window, double xOffset, double yOffset);
-void mouseButtonCallBack(GLFWwindow* window, int button, int action, int mods);
-Point2D getRotationFromCursor(GLFWwindow* window, Point2D currentPos, Point2D oldPos, Point2D currentRot);
-void inputSettings(GLFWwindow* window);
+void eventHandler(bool &quit, double &zoom, Mouse &mouse, Obj obj);
+Point2D getRotationFromCursor(SDL_Window* window, Mouse &currentPos, Mouse oldPos, Point2D currentRot);
 
 #endif // INPUT_H

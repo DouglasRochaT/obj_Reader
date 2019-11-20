@@ -1,28 +1,28 @@
-#include <glfw3.h>
+#include <SDL.h>
 #include "structs.h"
+#include <iostream>
 
-void scrollCallBack(GLFWwindow* window, double xOffset, double yOffset) {
-	void* zoomp = glfwGetWindowUserPointer(window);
-	double *zoom = static_cast<double*>(zoomp);
-	*zoom -= yOffset / 10;
-	if(*zoom < 0.1) {
-		*zoom = 0.1;
+void eventHandler(bool &quit, double &zoom, Mouse &mouse, Obj obj){
+	SDL_Event event;
+	while(SDL_PollEvent(&event)){
+		if(event.type == SDL_QUIT){
+			quit = true;
+		} else if(event.type == SDL_MOUSEBUTTONDOWN){
+			mouse.buttonPressed = true;
+		} else if(event.type == SDL_MOUSEBUTTONUP){
+			mouse.buttonPressed = false;
+		} else if(event.type == SDL_MOUSEWHEEL && event.wheel.y > 0 && zoom > 1){
+			zoom -= (obj.offset.y + 1) / 10;
+		} else if(event.type == SDL_MOUSEWHEEL && event.wheel.y < 0){
+			zoom += (obj.offset.y + 1) / 10;
+		}
 	}
 }
 
-void mouseButtonCallBack(GLFWwindow* window, int button, int action, int mods) {}
-
-Point2D getRotationFromCursor(GLFWwindow* window, Point2D currentPos, Point2D oldPos, Point2D currentRot) {
-	if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+Point2D getRotationFromCursor(SDL_Window* window, Mouse &currentPos, Mouse oldPos, Point2D currentRot) {
+	if(currentPos.buttonPressed){
 		currentRot.x += (currentPos.y - oldPos.y) / 5;
 		currentRot.y += (currentPos.x - oldPos.x) / 5;
 	}
 	return currentRot;
-}
-
-void inputSettings(GLFWwindow* window){
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetScrollCallback(window, scrollCallBack);
-	glfwSetMouseButtonCallback(window, mouseButtonCallBack);
-	glfwSetCursorPos(window, 180.0, -180.0);
 }

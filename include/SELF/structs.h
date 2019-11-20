@@ -27,13 +27,19 @@ struct Face {
 };
 
 struct Obj {
-	int numVertex = 0;
-	int numNormals = 0;
-	int numFaces = 0;
+	int numVertex;
+	int numNormals;
+	int numFaces;
 	Point3D offset;
 	Point3D* vertex;
 	Point3D* normal;
 	Face* face;
+};
+
+struct Mouse {
+	int x;
+	int y;
+	bool buttonPressed;
 };
 
 #endif // STRUCTS_H
