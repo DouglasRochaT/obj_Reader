@@ -161,3 +161,20 @@ void getFaceElements(std::string filename, Obj &obj){
 		}
 	}
 }
+
+void loadObj(Obj& obj, std::string filename){
+	countLines(filename, obj);
+	obj.vertex = new Point3D[obj.numVertex];
+	if(obj.numNormals > 0){ obj.normal = new Point3D[obj.numNormals]; }
+	obj.face = new Face[obj.numFaces];
+	std::cout << "Loading vertexes...\n";
+	getVertexElements(filename, obj, "v");
+	std::cout << "Loaded " << obj.numVertex << " vertex!\n\n";
+	std::cout << "Loading normals...\n";
+	if(obj.numNormals > 0){ getVertexElements(filename, obj, "vn"); }
+	std::cout << "Loaded " << obj.numNormals << " normals!\n\n";
+	std::cout << "Loading faces...\n";
+	getVertexPerFace(filename, obj);
+	getFaceElements(filename, obj);
+	std::cout << "Loaded " << obj.numFaces << " faces!\n\n";
+}

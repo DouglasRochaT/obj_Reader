@@ -3,8 +3,7 @@
 
 #include "structs.h"
 
-void drawCompass(Point2D rot);
-void drawObj(Obj obj, Point2D rot, SDL_Window* window, double zoom);
 void renderSettings();
+void drawEverything(Obj object, Point2D rotation, SDL_Window* mainWindow, double zoom);
 
 #endif // RENDER_H

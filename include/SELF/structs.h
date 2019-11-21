@@ -1,6 +1,11 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
 
+#define MENU_QUIT 0
+#define MENU_START 1
+#define MENU_LOADING 2
+#define MENU_GLDISPLAY 3
+
 struct Screen {
 	int x;
 	int y;

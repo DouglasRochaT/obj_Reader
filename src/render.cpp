@@ -50,3 +50,11 @@ void renderSettings(){
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glClearColor(0.1, 0.1, 0.11, 255);
 }
+
+void drawEverything(Obj object, Point2D rotation, SDL_Window* mainWindow, double zoom){
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	drawObj(object, rotation, mainWindow, zoom);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	drawCompass(rotation);
+	SDL_GL_SwapWindow(mainWindow);
+}

@@ -2,19 +2,31 @@
 #include "structs.h"
 #include <iostream>
 
-void eventHandler(bool &quit, double &zoom, Mouse &mouse, Obj obj){
+void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
 	SDL_Event event;
 	while(SDL_PollEvent(&event)){
-		if(event.type == SDL_QUIT){
-			quit = true;
-		} else if(event.type == SDL_MOUSEBUTTONDOWN){
-			mouse.buttonPressed = true;
-		} else if(event.type == SDL_MOUSEBUTTONUP){
-			mouse.buttonPressed = false;
-		} else if(event.type == SDL_MOUSEWHEEL && event.wheel.y > 0 && zoom > 1){
-			zoom -= (obj.offset.y + 1) / 10;
-		} else if(event.type == SDL_MOUSEWHEEL && event.wheel.y < 0){
-			zoom += (obj.offset.y + 1) / 10;
+		switch(event.type){
+			case SDL_QUIT: menu = MENU_QUIT; break;
+			case SDL_MOUSEBUTTONDOWN: 
+				mouse.buttonPressed = true;
+				if(menu == MENU_START){
+					SDL_Rect rect = { 288, 2, 10, 10 };
+					SDL_Point mousePos = {mouse.x, mouse.y};
+					if(SDL_PointInRect(&mousePos, &rect)){
+						menu = MENU_QUIT;
+					}
+				}
+			break;
+			case SDL_MOUSEBUTTONUP: mouse.buttonPressed = false; break;
+			case SDL_MOUSEWHEEL:
+				if(menu == MENU_GLDISPLAY){
+					if(event.wheel.y > 0 && zoom > 1){
+						zoom -= (obj.offset.y + 1) / 10;
+					} else if(event.wheel.y < 0){
+						zoom += (obj.offset.y + 1) / 10;
+					}
+				}
+			break;
 		}
 	}
 }
