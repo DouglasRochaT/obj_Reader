@@ -10,6 +10,7 @@
 void countLines(std::string filename, Obj &obj){
 	obj.numFaces = 0; obj.numVertex = 0; obj.numNormals = 0;
 	std::ifstream file(filename);
+	if(!file.is_open()){return;}
 	std::string id;
 	while(file >> id){
 		if(id == "v"){
@@ -164,14 +165,15 @@ void getFaceElements(std::string filename, Obj &obj){
 
 void loadObj(Obj& obj, std::string filename){
 	countLines(filename, obj);
+	if(!obj.numVertex){return;}
 	obj.vertex = new Point3D[obj.numVertex];
-	if(obj.numNormals > 0){ obj.normal = new Point3D[obj.numNormals]; }
+	obj.normal = new Point3D[obj.numNormals];
 	obj.face = new Face[obj.numFaces];
 	std::cout << "Loading vertexes...\n";
 	getVertexElements(filename, obj, "v");
 	std::cout << "Loaded " << obj.numVertex << " vertex!\n\n";
 	std::cout << "Loading normals...\n";
-	if(obj.numNormals > 0){ getVertexElements(filename, obj, "vn"); }
+	getVertexElements(filename, obj, "vn");
 	std::cout << "Loaded " << obj.numNormals << " normals!\n\n";
 	std::cout << "Loading faces...\n";
 	getVertexPerFace(filename, obj);

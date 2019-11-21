@@ -38,15 +38,24 @@ void drawMenuQuitButton(SDL_Renderer* renderer, SDL_Point mousePos){
 	SDL_RenderFillRect(renderer, &quitButtonRect);
 }
 
-void drawMenu(SDL_Renderer* renderer, Mouse mouse, SDL_Texture* font){
+void drawMenu(SDL_Renderer* renderer, Mouse mouse, SDL_Texture* font, int menu){
 	SDL_RenderClear(renderer);
 	SDL_Point mousePos = { mouse.x, mouse.y };
 	menuDrawBackground(renderer);
 	drawMenuQuitButton(renderer, mousePos);
-	writeText(renderer, "Obj", font, 70, 20, 58, 93);
-	writeText(renderer, "reader", font, 48, 120);
-	createButton(renderer, mousePos, 50, 200, 200, 30, "Load .obj", font, 30);
-	createButton(renderer, mousePos, 50, 250, 200, 30, "Options", font, 45);
-	createButton(renderer, mousePos, 50, 300, 200, 30, "Exit", font, 65);
+	if(menu == MENU_START){
+		writeText(renderer, "Obj", font, 70, 20, 58, 93);
+		writeText(renderer, "reader", font, 45, 120);
+		createButton(renderer, mousePos, 50, 200, 200, 30, "Load .obj", font, 30);
+		createButton(renderer, mousePos, 50, 250, 200, 30, "Options", font, 45);
+		createButton(renderer, mousePos, 50, 300, 200, 30, "Exit", font, 65);
+	} else if (menu == MENU_LOADING){
+		writeText(renderer, "Loading...", font, 20, 180, 29, 46);
+	} else if(menu == MENU_ERROR){
+		writeText(renderer, "An error has occurred", font, 15, 160, 15, 21);
+		writeText(renderer, "please select another", font, 15, 190, 15, 21);
+		writeText(renderer, "file.", font, 125, 220, 15, 21);
+		createButton(renderer, mousePos, 50, 260, 200, 30, "Ok", font, 85);
+	}
 	SDL_RenderPresent(renderer);
 }
