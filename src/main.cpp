@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_image.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,12 +9,14 @@
 #include "resources.h"
 #include "render.h"
 #include "input.h"
+#include "text.h"
 #include "menu.h"
 
 int main() {
 	SDL_Init(SDL_INIT_EVERYTHING);
+	IMG_Init(IMG_INIT_PNG);
 	Obj object = {0, 0, 0, {0, 0}, nullptr, nullptr, nullptr};
-	std::string filename = "cube.obj";
+	std::string filename = "batman.obj";
 	Mouse mouse = { 0, 0, false }, oldMouse = { 0, 0, false };
 	Point2D rotation = { 0, 0 };
 
@@ -25,12 +28,18 @@ int main() {
 	double zoom;
 	int menu = MENU_START;
 
+	SDL_SetRenderDrawBlendMode(menuRenderer, SDL_BLENDMODE_BLEND);
+
+	SDL_Texture* font = IMG_LoadTexture(menuRenderer, "img/font.png");
+	
 	while(menu != MENU_QUIT) {
 		eventHandler(menu, zoom, mouse, object);
 		SDL_GetMouseState(&mouse.x, &mouse.y);
 		if(menu == MENU_START){
-			drawMenu(menuRenderer, mouse);
+			drawMenu(menuRenderer, mouse, font);
 		} else if(menu == MENU_LOADING) {
+			SDL_DestroyRenderer(menuRenderer);
+			SDL_DestroyWindow(menuWindow);
 			loadObj(object, filename);
 			glWindow = SDL_CreateWindow("my sdl window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
 			glContext = SDL_GL_CreateContext(glWindow);
@@ -40,8 +49,8 @@ int main() {
 		} else if(menu == MENU_GLDISPLAY) {
 			rotation = getRotationFromCursor(glWindow, mouse, oldMouse, rotation);
 			drawEverything(object, rotation, glWindow, zoom);
-			SDL_GetMouseState(&oldMouse.x, &oldMouse.y);
 		}
+		SDL_GetMouseState(&oldMouse.x, &oldMouse.y);
 	}
 	SDL_Quit();
 	return 0;

@@ -1,5 +1,21 @@
 #include <SDL.h>
+#include <iostream>
+#include <string>
 #include "structs.h"
+#include "text.h"
+
+void createButton(SDL_Renderer* renderer, SDL_Point mousePos, int x, int y, int w, int h, std::string text, SDL_Texture* font, int textX){
+	SDL_Rect buttonRect = { x, y, w, h };
+	if(SDL_PointInRect(&mousePos, &buttonRect)){
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 128);
+	} else {
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 64);
+	}
+	SDL_RenderFillRect(renderer, &buttonRect);
+	double fontWidth = h*0.62;
+	double fontHeight = h*0.8;
+	writeText(renderer, text, font, x + textX, y + 5, fontWidth, fontHeight);
+}
 
 void menuDrawBackground(SDL_Renderer* render){
 	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
@@ -22,10 +38,15 @@ void drawMenuQuitButton(SDL_Renderer* renderer, SDL_Point mousePos){
 	SDL_RenderFillRect(renderer, &quitButtonRect);
 }
 
-void drawMenu(SDL_Renderer* renderer, Mouse mouse){
+void drawMenu(SDL_Renderer* renderer, Mouse mouse, SDL_Texture* font){
 	SDL_RenderClear(renderer);
 	SDL_Point mousePos = { mouse.x, mouse.y };
 	menuDrawBackground(renderer);
 	drawMenuQuitButton(renderer, mousePos);
+	writeText(renderer, "Obj", font, 70, 20, 58, 93);
+	writeText(renderer, "reader", font, 48, 120);
+	createButton(renderer, mousePos, 50, 200, 200, 30, "Load .obj", font, 30);
+	createButton(renderer, mousePos, 50, 250, 200, 30, "Options", font, 45);
+	createButton(renderer, mousePos, 50, 300, 200, 30, "Exit", font, 65);
 	SDL_RenderPresent(renderer);
 }

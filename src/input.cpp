@@ -10,10 +10,15 @@ void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
 			case SDL_MOUSEBUTTONDOWN: 
 				mouse.buttonPressed = true;
 				if(menu == MENU_START){
-					SDL_Rect rect = { 288, 2, 10, 10 };
 					SDL_Point mousePos = {mouse.x, mouse.y};
-					if(SDL_PointInRect(&mousePos, &rect)){
+					SDL_Rect quitButtonRect = {288, 2, 10, 10};
+					SDL_Rect exitButtonRect = {50, 300, 200, 30};
+					if(SDL_PointInRect(&mousePos, &quitButtonRect) || SDL_PointInRect(&mousePos, &exitButtonRect)){
 						menu = MENU_QUIT;
+					}
+					SDL_Rect loadObjButtonRect = {50, 200, 200, 30};
+					if(SDL_PointInRect(&mousePos, &loadObjButtonRect)){
+						menu = MENU_LOADING;
 					}
 				}
 			break;
