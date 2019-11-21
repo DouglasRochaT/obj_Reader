@@ -1,4 +1,9 @@
 #define SDL_MAIN_HANDLED
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_image.h>
@@ -13,10 +18,16 @@
 #include "menu.h"
 
 int main() {
+	//---removes console window---//
+	#ifdef _WIN32
+		HWND windowHandle = GetConsoleWindow();
+		ShowWindow(windowHandle, SW_HIDE);
+	#endif
+
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
 	Obj object = {0, 0, 0, {0, 0}, nullptr, nullptr, nullptr};
-	std::string filename = "batman.obj";
+	std::string filename;
 	Mouse mouse = { 0, 0, false }, oldMouse = { 0, 0, false };
 	Point2D rotation = { 0, 0 };
 	double zoom;
@@ -28,12 +39,14 @@ int main() {
 	SDL_Window* glWindow = nullptr;
 	SDL_GLContext glContext;
 	SDL_Texture* font = IMG_LoadTexture(menuRenderer, "img/font.png");
-	
+
 	while(menu != MENU_QUIT) {
 		eventHandler(menu, zoom, mouse, object);
 		SDL_GetMouseState(&mouse.x, &mouse.y);
 		if(menu == MENU_START){
 			//--start menu---//
+			drawMenu(menuRenderer, mouse, font, menu);
+		} else if(menu == MENU_OPTIONS){
 			drawMenu(menuRenderer, mouse, font, menu);
 		} else if(menu == MENU_LOADING) {
 			//---loading menu---//

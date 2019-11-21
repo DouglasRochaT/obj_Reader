@@ -22,7 +22,7 @@ void menuDrawBackground(SDL_Renderer* render){
 	SDL_Rect rect = { -1, -1, 301, 401 };
 	SDL_RenderFillRect(render, &rect);
 	for(int i = 2; i < 400; i += 2){
-		SDL_SetRenderDrawColor(render, 0, 100 - (i / 4), 200 - (i / 2), 255);
+		SDL_SetRenderDrawColor(render, 16, 81 - (i / 6), 140 - (i / 3), 255);
 		SDL_Rect rect = { 1, i - 1, 297, 2 };
 		SDL_RenderFillRect(render, &rect);
 	}
@@ -56,6 +56,9 @@ void drawMenu(SDL_Renderer* renderer, Mouse mouse, SDL_Texture* font, int menu){
 		writeText(renderer, "please select another", font, 15, 190, 15, 21);
 		writeText(renderer, "file.", font, 125, 220, 15, 21);
 		createButton(renderer, mousePos, 50, 260, 200, 30, "Ok", font, 85);
+	} else if(menu == MENU_OPTIONS){
+		writeText(renderer, "Options", font, 90, 20, 20, 30);
+		createButton(renderer, mousePos, 50, 350, 200, 30, "Back", font, 68);
 	}
 	SDL_RenderPresent(renderer);
 }

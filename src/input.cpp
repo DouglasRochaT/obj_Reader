@@ -14,13 +14,18 @@ void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
 					SDL_Rect quitButtonRect = { 288, 2, 10, 10 };
 					if(SDL_PointInRect(&mousePos, &quitButtonRect)){ menu = MENU_QUIT;}
 					if(menu == MENU_START){
-						SDL_Rect exitButtonRect = {50, 300, 200, 30};
-						if(SDL_PointInRect(&mousePos, &exitButtonRect)){ menu = MENU_QUIT; }
 						SDL_Rect loadObjButtonRect = {50, 200, 200, 30};
 						if(SDL_PointInRect(&mousePos, &loadObjButtonRect)){ menu = MENU_LOADING; }
+						SDL_Rect optionsButtonRect = { 50, 250, 200, 30 };
+						if(SDL_PointInRect(&mousePos, &optionsButtonRect)){ menu = MENU_OPTIONS; }
+						SDL_Rect exitButtonRect = { 50, 300, 200, 30 };
+						if(SDL_PointInRect(&mousePos, &exitButtonRect)){ menu = MENU_QUIT; }
 					} else if(menu == MENU_ERROR){
 						SDL_Rect okButtonRect = { 50, 260, 200, 30 };
 						if(SDL_PointInRect(&mousePos, &okButtonRect)){ menu = MENU_START; }
+					} else if(menu == MENU_OPTIONS){
+						SDL_Rect backButtonRect = { 50, 350, 200, 30 };
+						if(SDL_PointInRect(&mousePos, &backButtonRect)){ menu = MENU_START; }
 					}
 				} //end block (for some godforsaken reason i couldnt declare mousePos and quitButtonRect without this block)
 			break;

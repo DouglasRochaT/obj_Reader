@@ -3,9 +3,10 @@
 
 #define MENU_QUIT 0
 #define MENU_START 1
-#define MENU_LOADING 2
-#define MENU_ERROR 3
-#define MENU_GLDISPLAY 4
+#define MENU_OPTIONS 2
+#define MENU_LOADING 3
+#define MENU_ERROR 4
+#define MENU_GLDISPLAY 5
 
 struct Screen {
 	int x;
