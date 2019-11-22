@@ -3,14 +3,13 @@
 obj_Reader is a program written in C++ that reads and displays [.obj files](https://en.wikipedia.org/wiki/Wavefront_.obj_file).
 
  
+# Dependencies
 
 To compile obj_Reader you will need:
 
-• [SDL2](https://www.libsdl.org/download-2.0.php);
-
-• [SDL2_Image](https://www.libsdl.org/projects/SDL_image);
-
-• [MinGW](http://www.mingw.org/) or [Visual Studio](https://visualstudio.microsoft.com/);
+• [SDL2](https://www.libsdl.org/download-2.0.php);  
+• [SDL2_Image](https://www.libsdl.org/projects/SDL_image);  
+• [MinGW](http://www.mingw.org/) or [Visual Studio](https://visualstudio.microsoft.com/);  
 
  
 

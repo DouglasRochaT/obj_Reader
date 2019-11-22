@@ -27,7 +27,7 @@ int main() {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
 	Obj object = {0, 0, 0, {0, 0}, nullptr, nullptr, nullptr};
-	std::string filename;
+	std::string filename = "resources/Obj/Batman.obj";
 	Mouse mouse = { 0, 0, false }, oldMouse = { 0, 0, false };
 	Point2D rotation = { 0, 0 };
 	double zoom;
@@ -38,7 +38,7 @@ int main() {
 	SDL_SetRenderDrawBlendMode(menuRenderer, SDL_BLENDMODE_BLEND);
 	SDL_Window* glWindow = nullptr;
 	SDL_GLContext glContext;
-	SDL_Texture* font = IMG_LoadTexture(menuRenderer, "img/font.png");
+	SDL_Texture* font = IMG_LoadTexture(menuRenderer, "resources/font.png");
 
 	while(menu != MENU_QUIT) {
 		eventHandler(menu, zoom, mouse, object);
