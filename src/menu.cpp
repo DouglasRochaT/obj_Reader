@@ -12,8 +12,8 @@ void createButton(SDL_Renderer* renderer, SDL_Point mousePos, int x, int y, int 
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 64);
 	}
 	SDL_RenderFillRect(renderer, &buttonRect);
-	double fontWidth = h*0.62;
-	double fontHeight = h*0.8;
+	int fontWidth = static_cast<int>(h*0.62);
+	int fontHeight = static_cast<int>(h*0.8);
 	writeText(renderer, text, font, x + textX, y + 5, fontWidth, fontHeight);
 }
 
@@ -28,8 +28,8 @@ void menuDrawBackground(SDL_Renderer* render){
 	}
 }
 
-void drawMenuQuitButton(SDL_Renderer* renderer, SDL_Point mousePos){
-	SDL_Rect quitButtonRect = { 287, 3, 10, 10 };
+void drawMenuQuitButton(SDL_Renderer* renderer, SDL_Point mousePos, int windowWidth){
+	SDL_Rect quitButtonRect = { windowWidth - 13, 3, 10, 10 };
 	if(SDL_PointInRect(&mousePos, &quitButtonRect)){
 		SDL_SetRenderDrawColor(renderer, 200, 50, 50, 255);
 	} else {
@@ -42,7 +42,7 @@ void drawMenu(SDL_Renderer* renderer, Mouse mouse, SDL_Texture* font, int menu){
 	SDL_RenderClear(renderer);
 	SDL_Point mousePos = { mouse.x, mouse.y };
 	menuDrawBackground(renderer);
-	drawMenuQuitButton(renderer, mousePos);
+	drawMenuQuitButton(renderer, mousePos, 300);
 	if(menu == MENU_START){
 		writeText(renderer, "Obj", font, 70, 20, 58, 93);
 		writeText(renderer, "reader", font, 45, 120);
@@ -56,9 +56,33 @@ void drawMenu(SDL_Renderer* renderer, Mouse mouse, SDL_Texture* font, int menu){
 		writeText(renderer, "please select another", font, 15, 190, 15, 21);
 		writeText(renderer, "file.", font, 125, 220, 15, 21);
 		createButton(renderer, mousePos, 50, 260, 200, 30, "Ok", font, 85);
-	} else if(menu == MENU_OPTIONS){
+	} else if(menu == MENU_OPTIONS || menu == MENU_OPTIONS_RESOLUTION){
 		writeText(renderer, "Options", font, 90, 20, 20, 30);
+		writeText(renderer, "Resolution", font, 60, 100, 20, 30);
+		//placeholder text for the resolution button
+		//it'll change later according to the preferred resolution
+		std::string resolutionButtonText = resList[0][1] + "x" + resList[1][1];
+		createButton(renderer, mousePos, 50, 140, 200, 30, resolutionButtonText, font, 45);
 		createButton(renderer, mousePos, 50, 350, 200, 30, "Back", font, 68);
+	} 
+	SDL_RenderPresent(renderer);
+}
+
+void drawResolutionMenuBackground(SDL_Renderer* renderer){
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_Rect rect = { -1, -1, 501, 201 };
+	SDL_RenderFillRect(renderer, &rect);
+	for(int i = 2; i < 200; i += 2){
+		SDL_SetRenderDrawColor(renderer, 16, 81 - (i / 3), 140 - (i / 1.5), 255);
+		SDL_Rect rect = { 1, i - 1, 497, 2 };
+		SDL_RenderFillRect(renderer, &rect);
 	}
+}
+
+void drawResolutionMenu(SDL_Renderer* renderer, Mouse mouse){
+	SDL_Point mousePos = { mouse.x, mouse.y };
+	SDL_RenderClear(renderer);
+	drawResolutionMenuBackground(renderer);
+	drawMenuQuitButton(renderer, mousePos, 500);
 	SDL_RenderPresent(renderer);
 }

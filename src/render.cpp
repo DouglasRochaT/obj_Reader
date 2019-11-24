@@ -6,8 +6,8 @@
 void drawCompass(Point2D rot){
 	glLineWidth(2.0);
 	glTranslated(-0.90, -0.90, 0.0);
-	glRotated(-rot.x, 1.0, 0.0, 0.0);
-	glRotated(-rot.y, 0.0, 1.0, 0.0);
+	glRotated(-rot.x/5, 1.0, 0.0, 0.0);
+	glRotated(-rot.y/5, 0.0, 1.0, 0.0);
 	glTranslated(0.90, 0.90, 0.0);
 	glDisable(GL_LIGHT0);
 	glBegin(GL_LINES);
@@ -25,8 +25,8 @@ void drawCompass(Point2D rot){
 }
 
 void drawObj(Obj obj, Point2D rot, SDL_Window* window, double zoom) {
-	glRotated(-rot.x, 1.0, 0.0, 0.0);
-	glRotated(-rot.y, 0.0, 1.0, 0.0);
+	glRotated(-rot.x/5, 1.0, 0.0, 0.0);
+	glRotated(-rot.y/5, 0.0, 1.0, 0.0);
 	glTranslated(-obj.offset.x / zoom, -obj.offset.y / zoom, -obj.offset.z / zoom);
 	glColor3d(1, 1, 1);
 	glEnable(GL_LIGHT0);

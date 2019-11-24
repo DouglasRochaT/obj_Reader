@@ -26,6 +26,11 @@ void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
 					} else if(menu == MENU_OPTIONS){
 						SDL_Rect backButtonRect = { 50, 350, 200, 30 };
 						if(SDL_PointInRect(&mousePos, &backButtonRect)){ menu = MENU_START; }
+						SDL_Rect resolutionButtonRect = { 50, 140, 200, 30 };
+						if(SDL_PointInRect(&mousePos, &resolutionButtonRect)){ menu = MENU_OPTIONS_RESOLUTION; }
+					} else if(menu == MENU_OPTIONS_RESOLUTION){
+						SDL_Rect quitResolutionMenuButtonRect = { 487, 3, 10, 10 };
+						if(SDL_PointInRect(&mousePos, &quitResolutionMenuButtonRect)){ menu = MENU_OPTIONS; }
 					}
 				} //end block (for some godforsaken reason i couldnt declare mousePos and quitButtonRect without this block)
 			break;
@@ -45,8 +50,8 @@ void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
 
 Point2D getRotationFromCursor(SDL_Window* window, Mouse &currentPos, Mouse oldPos, Point2D currentRot) {
 	if(currentPos.buttonPressed){
-		currentRot.x += (currentPos.y - oldPos.y) / 5;
-		currentRot.y += (currentPos.x - oldPos.x) / 5;
+		currentRot.x += (currentPos.y - oldPos.y);
+		currentRot.y += (currentPos.x - oldPos.x);
 	}
 	return currentRot;
 }

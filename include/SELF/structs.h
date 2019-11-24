@@ -4,9 +4,15 @@
 #define MENU_QUIT 0
 #define MENU_START 1
 #define MENU_OPTIONS 2
-#define MENU_LOADING 3
-#define MENU_ERROR 4
-#define MENU_GLDISPLAY 5
+#define MENU_OPTIONS_RESOLUTION 3
+#define MENU_LOADING 4
+#define MENU_ERROR 5
+#define MENU_GLDISPLAY 6
+
+#include <iostream>
+const std::string resList[2][13] = {{"640", "800", "1024", "1152", "1176", "1280", "1280", "1280", "1280", "1360", "1440", "1600", "1920"},
+								    {"360", "600", "768",  "864",  "664",  "720",  "768",  "800",  "1024", "768",  "900",  "900",  "1080"}};
+
 
 struct Screen {
 	int x;

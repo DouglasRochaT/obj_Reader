@@ -7,6 +7,32 @@
 #include <iostream>
 #include "structs.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+
+void hideConsole(){
+	HWND windowHandle = GetConsoleWindow();
+	ShowWindow(windowHandle, SW_HIDE);
+}
+
+std::string getFileName(){
+	char fileName[MAX_PATH];
+	fileName[259] = NULL;
+	OPENFILENAME winFile;
+	ZeroMemory(&fileName, sizeof(fileName));
+	ZeroMemory(&winFile, sizeof(winFile));
+	winFile.lStructSize = sizeof(winFile);
+	winFile.hwndOwner = NULL;
+	winFile.lpstrFilter = "OBJ Files\0*.obj\0Any File\0*.*\0";
+	winFile.lpstrFile = fileName;
+	winFile.nMaxFile = MAX_PATH;
+	winFile.lpstrTitle = "Select an obj file";
+	winFile.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+	GetOpenFileNameA(&winFile);
+	return winFile.lpstrFile;
+}
+#endif
+
 void countLines(std::string filename, Obj &obj){
 	obj.numFaces = 0; obj.numVertex = 0; obj.numNormals = 0;
 	std::ifstream file(filename);
