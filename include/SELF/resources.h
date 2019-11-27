@@ -5,4 +5,4 @@ void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture
 void hideConsole();
 std::string getFileName();
 
-#endif // RESOURCES_H
+#endif //RESOURCES_H

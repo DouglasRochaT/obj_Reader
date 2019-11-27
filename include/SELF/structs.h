@@ -13,8 +13,6 @@
 const std::string resList[2][12] = {{"640", "800", "1024", "1152", "1280", "1280", "1280", "1280", "1360", "1440", "1600", "1920"},
 								    {"360", "600", "768",  "864",  "720",  "768",  "800",  "1024", "768",  "900",  "900",  "1080"}};
 
-
-
 struct Screen {
 	int x;
 	int y;
@@ -63,4 +61,4 @@ struct Mouse {
 	bool buttonPressed;
 };
 
-#endif // STRUCTS_H
+#endif //STRUCTS_H
