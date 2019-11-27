@@ -2,7 +2,62 @@
 #include "structs.h"
 #include <iostream>
 
-void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
+int quitButtonMouseEvent(SDL_Point mousePos, int menu){
+	SDL_Rect quitButtonRect = { 288, 2, 10, 10 };
+	if(SDL_PointInRect(&mousePos, &quitButtonRect)){ return MENU_QUIT;}
+	return menu;
+}
+
+int menuStartMouseEvent(SDL_Point mousePos, int menu){
+	SDL_Rect loadObjButtonRect = {50, 200, 200, 30};
+	if(SDL_PointInRect(&mousePos, &loadObjButtonRect)){ return MENU_LOADING; }
+	SDL_Rect optionsButtonRect = { 50, 250, 200, 30 };
+	if(SDL_PointInRect(&mousePos, &optionsButtonRect)){ return MENU_OPTIONS; }
+	SDL_Rect exitButtonRect = { 50, 300, 200, 30 };
+	if(SDL_PointInRect(&mousePos, &exitButtonRect)){ return MENU_QUIT; }
+	return menu;
+}
+
+int menuErrorMouseEvent(SDL_Point mousePos, int menu){
+	SDL_Rect okButtonRect = { 50, 260, 200, 30 };
+	if(SDL_PointInRect(&mousePos, &okButtonRect)){ return MENU_START; }
+	return menu;
+}
+
+int menuOptionsMouseEvent(SDL_Point mousePos, int menu){
+	SDL_Rect backButtonRect = { 50, 350, 200, 30 };
+	if(SDL_PointInRect(&mousePos, &backButtonRect)){ return MENU_START; }
+	SDL_Rect resolutionButtonRect = { 50, 140, 200, 30 };
+	if(SDL_PointInRect(&mousePos, &resolutionButtonRect)){ return MENU_OPTIONS_RESOLUTION; }
+	return menu;
+}
+
+int menuOptionsResolutionMouseEvent(SDL_Point mousePos, int menu, int &resolutionSetting){
+	SDL_Rect quitResolutionMenuButtonRect = { 487, 3, 10, 10 };
+	if(SDL_PointInRect(&mousePos, &quitResolutionMenuButtonRect)){ return MENU_OPTIONS; }
+	for (int i = 0; i < 3; i++){
+		for (int j = 0; j < 4; j++){
+			SDL_Rect resolutionButtonRect = {(j * 120) + 20, (i * 50) + 35, 100, 30};
+			if(SDL_PointInRect(&mousePos, &resolutionButtonRect)){ 
+				resolutionSetting = i*4 + j; 
+				return MENU_OPTIONS; 
+			}
+		}
+	}
+	return menu;
+}
+
+void mouseWheelEvent(SDL_Event event, int menu, double &zoom, Obj obj){
+	if(menu == MENU_GLDISPLAY){
+		if(event.wheel.y > 0 && zoom > obj.size.y / 2){
+			zoom -= (obj.size.y + 1) / 10;
+		} else if(event.wheel.y < 0){
+			zoom += (obj.size.y + 1) / 10;
+		}
+	}
+}
+
+void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj, int &resolutionSetting){
 	SDL_Event event;
 	while(SDL_PollEvent(&event)){
 		switch(event.type){
@@ -10,45 +65,29 @@ void eventHandler(int &menu, double &zoom, Mouse &mouse, Obj obj){
 			case SDL_MOUSEBUTTONDOWN: 
 				mouse.buttonPressed = true;
 				{ //start block
-					SDL_Point mousePos = { mouse.x, mouse.y };
-					SDL_Rect quitButtonRect = { 288, 2, 10, 10 };
-					if(SDL_PointInRect(&mousePos, &quitButtonRect)){ menu = MENU_QUIT;}
-					if(menu == MENU_START){
-						SDL_Rect loadObjButtonRect = {50, 200, 200, 30};
-						if(SDL_PointInRect(&mousePos, &loadObjButtonRect)){ menu = MENU_LOADING; }
-						SDL_Rect optionsButtonRect = { 50, 250, 200, 30 };
-						if(SDL_PointInRect(&mousePos, &optionsButtonRect)){ menu = MENU_OPTIONS; }
-						SDL_Rect exitButtonRect = { 50, 300, 200, 30 };
-						if(SDL_PointInRect(&mousePos, &exitButtonRect)){ menu = MENU_QUIT; }
-					} else if(menu == MENU_ERROR){
-						SDL_Rect okButtonRect = { 50, 260, 200, 30 };
-						if(SDL_PointInRect(&mousePos, &okButtonRect)){ menu = MENU_START; }
-					} else if(menu == MENU_OPTIONS){
-						SDL_Rect backButtonRect = { 50, 350, 200, 30 };
-						if(SDL_PointInRect(&mousePos, &backButtonRect)){ menu = MENU_START; }
-						SDL_Rect resolutionButtonRect = { 50, 140, 200, 30 };
-						if(SDL_PointInRect(&mousePos, &resolutionButtonRect)){ menu = MENU_OPTIONS_RESOLUTION; }
-					} else if(menu == MENU_OPTIONS_RESOLUTION){
-						SDL_Rect quitResolutionMenuButtonRect = { 487, 3, 10, 10 };
-						if(SDL_PointInRect(&mousePos, &quitResolutionMenuButtonRect)){ menu = MENU_OPTIONS; }
+					SDL_Point mousePos = {mouse.x, mouse.y};
+					menu = quitButtonMouseEvent(mousePos, menu);
+					switch(menu){
+						case MENU_START:
+							menu = menuStartMouseEvent(mousePos, menu); break;
+						case MENU_ERROR:
+							menu = menuErrorMouseEvent(mousePos, menu); break;
+						case MENU_OPTIONS:
+							menu = menuOptionsMouseEvent(mousePos, menu); break;
+						case MENU_OPTIONS_RESOLUTION:
+							menu = menuOptionsResolutionMouseEvent(mousePos, menu, resolutionSetting); break;
 					}
-				} //end block (for some godforsaken reason i couldnt declare mousePos and quitButtonRect without this block)
+				} //end block
 			break;
 			case SDL_MOUSEBUTTONUP: mouse.buttonPressed = false; break;
 			case SDL_MOUSEWHEEL:
-				if(menu == MENU_GLDISPLAY){
-					if(event.wheel.y > 0 && zoom > 1){
-						zoom -= (obj.offset.y + 1) / 10;
-					} else if(event.wheel.y < 0){
-						zoom += (obj.offset.y + 1) / 10;
-					}
-				}
+				mouseWheelEvent(event, menu, zoom, obj);
 			break;
 		}
 	}
 }
 
-Point2D getRotationFromCursor(SDL_Window* window, Mouse &currentPos, Mouse oldPos, Point2D currentRot) {
+Point2D getRotationFromCursor(Mouse &currentPos, Mouse oldPos, Point2D currentRot) {
 	if(currentPos.buttonPressed){
 		currentRot.x += (currentPos.y - oldPos.y);
 		currentRot.y += (currentPos.x - oldPos.x);

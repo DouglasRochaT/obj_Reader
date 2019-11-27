@@ -2,6 +2,7 @@
 #include <SDL_opengl.h>
 #include "structs.h"
 #include <iostream>
+#include <string>
 
 void drawCompass(Point2D rot){
 	glLineWidth(2.0);
@@ -11,12 +12,15 @@ void drawCompass(Point2D rot){
 	glTranslated(0.90, 0.90, 0.0);
 	glDisable(GL_LIGHT0);
 	glBegin(GL_LINES);
+	//---X axis---//
 	glColor3d(255, 0, 0);
 	glVertex3d(-0.90, -0.90, 0.0);
 	glVertex3d(-0.80, -0.90, 0.0);
+	//---Y axis---//
 	glColor3d(0, 255, 0);
 	glVertex3d(-0.90, -0.90, 0.0);
 	glVertex3d(-0.90, -0.80, 0.0);
+	//---Z axis---//
 	glColor3d(0, 0, 255);
 	glVertex3d(-0.90, -0.90, 0.0);
 	glVertex3d(-0.90, -0.90, -0.10);
@@ -24,7 +28,7 @@ void drawCompass(Point2D rot){
 	glLoadIdentity();
 }
 
-void drawObj(Obj obj, Point2D rot, SDL_Window* window, double zoom) {
+void drawObj(Obj obj, Point2D rot, double zoom) {
 	glRotated(-rot.x/5, 1.0, 0.0, 0.0);
 	glRotated(-rot.y/5, 0.0, 1.0, 0.0);
 	glTranslated(-obj.offset.x / zoom, -obj.offset.y / zoom, -obj.offset.z / zoom);
@@ -41,7 +45,7 @@ void drawObj(Obj obj, Point2D rot, SDL_Window* window, double zoom) {
 	glLoadIdentity();
 }
 
-void renderSettings(){
+void setRendererSettings(){
 	glEnable(GL_LIGHTING);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_DEPTH_TEST);
@@ -51,10 +55,14 @@ void renderSettings(){
 	glClearColor(0.1, 0.1, 0.11, 255);
 }
 
-void drawEverything(Obj object, Point2D rotation, SDL_Window* mainWindow, double zoom){
+void drawEverything(Obj object, Point2D rotation, SDL_Window* mainWindow, double zoom, int resolution){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	drawObj(object, rotation, mainWindow, zoom);
+	int fourByThreeProportionHeight = stoi(resList[1][resolution]);
+	int fourByThreeProportionWidth = fourByThreeProportionHeight *1.3;
+	glViewport((stoi(resList[0][resolution])/2) - fourByThreeProportionWidth / 2, 0, fourByThreeProportionWidth, fourByThreeProportionHeight);
+	drawObj(object, rotation, zoom);
 	glClear(GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, stoi(resList[1][resolution])*1.3, stoi(resList[1][resolution]));
 	drawCompass(rotation);
 	SDL_GL_SwapWindow(mainWindow);
 }

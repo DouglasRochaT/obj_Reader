@@ -5,9 +5,10 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <SDL.h>
+#include <SDL_image.h>
 #include "structs.h"
-
-#ifdef _WIN32
+#include "text.h"
 #include <Windows.h>
 
 void hideConsole(){
@@ -29,9 +30,8 @@ std::string getFileName(){
 	winFile.lpstrTitle = "Select an obj file";
 	winFile.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
 	GetOpenFileNameA(&winFile);
-	return winFile.lpstrFile;
+	return std::string(winFile.lpstrFile);
 }
-#endif
 
 void countLines(std::string filename, Obj &obj){
 	obj.numFaces = 0; obj.numVertex = 0; obj.numNormals = 0;
@@ -52,8 +52,7 @@ void countLines(std::string filename, Obj &obj){
 
 int countElements(std::string filename, std::string identifier){
 	std::ifstream file(filename);
-	std::string id = "";
-	std::string line;
+	std::string id = "", line;
 	int counter = 0;
 	while(id != identifier){
 		file >> id;
@@ -84,6 +83,7 @@ void getVertexPerFace(std::string filename, Obj &obj){
 			}
 			obj.face[currentFace].vertexPerFace = counter;
 			obj.face[currentFace].vertex = new unsigned short int[counter];
+			obj.face[currentFace].texture = new unsigned short int[counter];
 			obj.face[currentFace].normal = new unsigned short int[counter];
 			currentFace++;
 		}
@@ -132,18 +132,47 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 		obj.offset.x = minX + ((maxX - minX) / 2);
 		obj.offset.y = minY + ((maxY - minY) / 2);
 		obj.offset.z = minZ + ((maxZ - minZ) / 2);
+		obj.size.x = maxX - minX;
+		obj.size.y = maxY - minY;
+		obj.size.z = maxZ - minZ;
 	}
 	file.close();
 }
 
+int countMtlTextures(std::string filename) {
+	std::ifstream file(filename);
+	std::string id = "", line;
+	int count = 0;
+	while (file >> id) {
+		if (id != "newmtl") {
+			count += 1;
+		}
+	}
+	return count;
+}
+
+void getTgaNames(Obj& obj, std::string filename) {
+	obj.mtl = new MTL[countMtlTextures(filename)];
+	std::ifstream file(filename);
+	std::string id = "", line;
+	int mtlAtual = 0;
+	while (file >> id) {
+		std::getline(file, line);
+		if (id != "") {
+			if (id == "newmtl") {
+				file >> obj.mtl[mtlAtual].name;
+			}
+			else {
+				file >> obj.mtl[mtlAtual].fileName;
+			}
+		}
+	}
+}
+
 void getFaceElements(std::string filename, Obj &obj){
 	std::ifstream file(filename);
-	std::string line;
-	std::string id = "";
-	int currentVertex = -1;
-	int currentFace = 0;
-	int numVertexPassed = 0, numNormalsPassed = 0;
-	std::string temp;
+	std::string line, id = "", temp;
+	int currentVertex = -1, currentFace = 0, numVertexPassed = 0, numNormalsPassed = 0;
 	while(file >> id){
 		std::getline(file, line);
 		int editing = EDITING_NORMAL;
@@ -177,7 +206,7 @@ void getFaceElements(std::string filename, Obj &obj){
 					if(editing == EDITING_VERTEX){
 						obj.face[currentFace].vertex[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numVertexPassed - abs(stoi(temp));
 					} else if(editing == EDITING_TEXTURE){
-						obj.face[currentFace].texture = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
+						obj.face[currentFace].texture[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
 					} else if(editing == EDITING_NORMAL){
 						obj.face[currentFace].normal[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
 					}
@@ -189,20 +218,29 @@ void getFaceElements(std::string filename, Obj &obj){
 	}
 }
 
-void loadObj(Obj& obj, std::string filename){
+void writeLoadingText(SDL_Renderer* renderer, std::string text, SDL_Texture* font, int x, int y, int w = 39, int h = 62){
+	writeText(renderer, text, font, x, y, w, h);
+	SDL_RenderPresent(renderer);
+}
+
+void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture* font){
 	countLines(filename, obj);
 	if(!obj.numVertex){return;}
 	obj.vertex = new Point3D[obj.numVertex];
 	obj.normal = new Point3D[obj.numNormals];
 	obj.face = new Face[obj.numFaces];
-	std::cout << "Loading vertexes...\n";
+	std::string vertexText = "Loaded " + std::to_string(obj.numVertex) + " vertex!";
+	std::string normalText = "Loaded " + std::to_string(obj.numNormals) + " normals!";
+	std::string facesText = "Loaded " + std::to_string(obj.numFaces) + " faces!";
+	writeLoadingText(renderer, "Loading vertexes...", font, 5, 10, 11, 17);
 	getVertexElements(filename, obj, "v");
-	std::cout << "Loaded " << obj.numVertex << " vertex!\n\n";
-	std::cout << "Loading normals...\n";
+	writeLoadingText(renderer, vertexText, font, 5, 30, 11, 17);
+	writeLoadingText(renderer, "Loading normals...", font, 5, 50, 11, 17);
 	getVertexElements(filename, obj, "vn");
-	std::cout << "Loaded " << obj.numNormals << " normals!\n\n";
-	std::cout << "Loading faces...\n";
+	writeLoadingText(renderer, normalText, font, 5, 70, 11, 17);
+	writeLoadingText(renderer, "Loading faces...", font, 5, 90, 11, 17);
 	getVertexPerFace(filename, obj);
 	getFaceElements(filename, obj);
-	std::cout << "Loaded " << obj.numFaces << " faces!\n\n";
+	writeLoadingText(renderer, facesText, font, 5, 110, 11, 17);
+	SDL_Delay(3000);
 }
