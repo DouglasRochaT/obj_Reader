@@ -132,9 +132,6 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 			} else if(identifier == "vt"){
 				obj.texture[current].x = stod(x);
 				obj.texture[current].y = stod(y);
-				//std::cout << current << std::endl;
-				//std::cout << "X: " << x << std::endl;
-				//std::cout << "Y: " << y << std::endl;
 			}
 			current++;
 		}
@@ -233,9 +230,23 @@ void getTgaNames(std::string filename, Obj& obj){
 	}
 }
 
+void loadTgaFiles(std::string filename, Obj& obj, SDL_Renderer* renderer){
+	std::string temp, filepath;
+	for(int i = 0; i < filename.size(); i++){
+		temp+=filename[i];
+		if(filename[i] == '\\'){
+			filepath = temp;
+		}
+	}
+	for(int i = 0; i < countMtlTextures(filename); i++){
+		const char *filename = (filepath + obj.mtl[i].fileName).c_str();
+		obj.mtl[i].tga = IMG_LoadTexture(renderer, filename);
+	}
+}
 
 void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture* font){
 	getTgaNames(filename, obj);
+	loadTgaFiles(filename, obj, renderer);
 	countLines(filename, obj);
 	if(!obj.numVertex){return;}
 	obj.vertex = new Point3D[obj.numVertex];
