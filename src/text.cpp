@@ -18,3 +18,8 @@ void writeText(SDL_Renderer* render, std::string text, SDL_Texture* font, int x,
 		SDL_RenderCopy(render, font, &textCut, &textPos);
 	}
 }
+
+void writeLoadingText(SDL_Renderer* renderer, std::string text, SDL_Texture* font, int x, int y, int w = 39, int h = 62){
+	writeText(renderer, text, font, x, y, w, h);
+	SDL_RenderPresent(renderer);
+}

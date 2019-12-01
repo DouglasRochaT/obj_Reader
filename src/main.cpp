@@ -12,10 +12,10 @@
 #include "menu.h"
 
 int main(){
-	hideConsole();
+	//hideConsole(); //This is annoying for debug
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
-	Obj object = { 0, 0, 0, {0, 0}, {0, 0, 0}, nullptr, nullptr, nullptr };
+	Obj object = { 0, 0, 0, 0, {0, 0}, {0, 0, 0}, nullptr, nullptr, nullptr, nullptr, nullptr};
 	std::string filename;
 	Mouse mouse = { 0, 0, false }, oldMouse = { 0, 0, false };
 	Point2D rotation = { 0, 0 };

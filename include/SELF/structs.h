@@ -31,6 +31,11 @@ struct Point3D {
 	double z;
 };
 
+struct Mtl {
+	std::string name;
+	std::string fileName;
+};
+
 struct Face {
 	unsigned short int vertexPerFace;
 	unsigned short int* vertex;
@@ -38,21 +43,18 @@ struct Face {
 	unsigned short int* normal;
 };
 
-struct MTL {
-	std::string name;
-	std::string fileName;
-};
-
 struct Obj {
 	int numVertex;
 	int numNormals;
 	int numFaces;
+	int numTextures;
 	Point3D size;
 	Point3D offset;
 	Point3D* vertex;
 	Point3D* normal;
+	Point2D* texture;
 	Face* face;
-	MTL* mtl;
+	Mtl* mtl;
 };
 
 struct Mouse {

@@ -14,6 +14,7 @@
 void hideConsole(){
 	HWND windowHandle = GetConsoleWindow();
 	ShowWindow(windowHandle, SW_HIDE);
+	//For MinGW this function can be supressed by the -mwindows linker option.
 }
 
 std::string getFileName(){
@@ -34,7 +35,7 @@ std::string getFileName(){
 }
 
 void countLines(std::string filename, Obj &obj){
-	obj.numFaces = 0; obj.numVertex = 0; obj.numNormals = 0;
+	obj.numFaces = 0; obj.numVertex = 0; obj.numNormals = 0; obj.numTextures = 0;
 	std::ifstream file(filename);
 	if(!file.is_open()){return;}
 	std::string id;
@@ -45,6 +46,8 @@ void countLines(std::string filename, Obj &obj){
 			obj.numNormals += 1;
 		}else if(id == "f"){
 			obj.numFaces += 1;
+		}else if(id == "vt"){
+			obj.numTextures += 1;
 		}
 	}
 	file.close();
@@ -102,7 +105,9 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 	std::ifstream file(filename);
 	while(file >> id){
 		if(id == identifier){
-			if(numElements == 3){
+			if(numElements == 2){
+				file >> x >> y;
+			} else if(numElements == 3){
 				file >> x >> y >> z;
 			} else if(numElements == 4){
 				file >> x >> y >> z >> w;
@@ -124,6 +129,12 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 				obj.normal[current].x = stod(x);
 				obj.normal[current].y = stod(y);
 				obj.normal[current].z = stod(z);
+			} else if(identifier == "vt"){
+				obj.texture[current].x = stod(x);
+				obj.texture[current].y = stod(y);
+				//std::cout << current << std::endl;
+				//std::cout << "X: " << x << std::endl;
+				//std::cout << "Y: " << y << std::endl;
 			}
 			current++;
 		}
@@ -137,36 +148,6 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 		obj.size.z = maxZ - minZ;
 	}
 	file.close();
-}
-
-int countMtlTextures(std::string filename) {
-	std::ifstream file(filename);
-	std::string id = "", line;
-	int count = 0;
-	while (file >> id) {
-		if (id != "newmtl") {
-			count += 1;
-		}
-	}
-	return count;
-}
-
-void getTgaNames(Obj& obj, std::string filename) {
-	obj.mtl = new MTL[countMtlTextures(filename)];
-	std::ifstream file(filename);
-	std::string id = "", line;
-	int mtlAtual = 0;
-	while (file >> id) {
-		std::getline(file, line);
-		if (id != "") {
-			if (id == "newmtl") {
-				file >> obj.mtl[mtlAtual].name;
-			}
-			else {
-				file >> obj.mtl[mtlAtual].fileName;
-			}
-		}
-	}
 }
 
 void getFaceElements(std::string filename, Obj &obj){
@@ -207,6 +188,7 @@ void getFaceElements(std::string filename, Obj &obj){
 						obj.face[currentFace].vertex[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numVertexPassed - abs(stoi(temp));
 					} else if(editing == EDITING_TEXTURE){
 						obj.face[currentFace].texture[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
+						//std::cout << obj.face[currentFace].texture[currentVertex] << std::endl;
 					} else if(editing == EDITING_NORMAL){
 						obj.face[currentFace].normal[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
 					}
@@ -218,20 +200,52 @@ void getFaceElements(std::string filename, Obj &obj){
 	}
 }
 
-void writeLoadingText(SDL_Renderer* renderer, std::string text, SDL_Texture* font, int x, int y, int w = 39, int h = 62){
-	writeText(renderer, text, font, x, y, w, h);
-	SDL_RenderPresent(renderer);
+int countMtlTextures(std::string filename){
+	std::ifstream file(filename);
+	std::string id = "", line;
+	int count = 0;
+	while(file >> id){
+		if(id == "newmtl"){
+			count++;
+		}
+	}
+	return count;
 }
 
+void getTgaNames(std::string filename, Obj& obj){
+	filename[filename.size() -3] = 'm';
+	filename[filename.size() -2] = 't';
+	filename[filename.size() -1] = 'l';
+	obj.mtl = new Mtl[countMtlTextures(filename)];
+	std::ifstream file(filename);
+	std::string id = "", line;
+	int mtlAtual = 0;
+	while(file >> id){
+		std::getline(file, line);
+		if(id != ""){
+			if(id == "newmtl"){
+				obj.mtl[mtlAtual].name = line;
+			} else{
+				obj.mtl[mtlAtual].fileName = line;
+				mtlAtual++;
+			}
+		}
+	}
+}
+
+
 void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture* font){
+	getTgaNames(filename, obj);
 	countLines(filename, obj);
 	if(!obj.numVertex){return;}
 	obj.vertex = new Point3D[obj.numVertex];
 	obj.normal = new Point3D[obj.numNormals];
 	obj.face = new Face[obj.numFaces];
+	obj.texture = new Point2D[obj.numTextures];
 	std::string vertexText = "Loaded " + std::to_string(obj.numVertex) + " vertex!";
 	std::string normalText = "Loaded " + std::to_string(obj.numNormals) + " normals!";
 	std::string facesText = "Loaded " + std::to_string(obj.numFaces) + " faces!";
+	std::string textureText = "Loaded " + std::to_string(obj.numTextures) + " textures!";
 	writeLoadingText(renderer, "Loading vertexes...", font, 5, 10, 11, 17);
 	getVertexElements(filename, obj, "v");
 	writeLoadingText(renderer, vertexText, font, 5, 30, 11, 17);
@@ -242,5 +256,8 @@ void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture
 	getVertexPerFace(filename, obj);
 	getFaceElements(filename, obj);
 	writeLoadingText(renderer, facesText, font, 5, 110, 11, 17);
-	SDL_Delay(3000);
+	writeLoadingText(renderer, "Loading textures...", font, 5, 130, 11, 17);
+	getVertexElements(filename, obj, "vt");
+	writeLoadingText(renderer, textureText, font, 5, 150, 11, 17);
+	//SDL_Delay(3000); //This is annoying for debug
 }
