@@ -34,7 +34,7 @@ struct Point3D {
 struct Mtl {
 	std::string name;
 	std::string fileName;
-	SDL_Texture* tga;
+	SDL_Surface* tga;
 };
 
 struct Face {

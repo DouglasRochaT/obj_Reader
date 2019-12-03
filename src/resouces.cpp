@@ -150,12 +150,13 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 void getFaceElements(std::string filename, Obj &obj){
 	std::ifstream file(filename);
 	std::string line, id = "", temp;
-	int currentVertex = -1, currentFace = 0, numVertexPassed = 0, numNormalsPassed = 0;
+	int currentVertex = -1, currentFace = 0, numVertexPassed = 0, numNormalsPassed = 0, numTexturesPassed = 0;
 	while(file >> id){
 		std::getline(file, line);
 		int editing = EDITING_NORMAL;
 		if(id == "v"){numVertexPassed++;}
 		if(id == "vn"){numNormalsPassed++;}
+		if(id == "vt"){numTexturesPassed++;}
 		//face identifier
 		if(id == "f"){
 			for(int i = 1; line[i] != 0; i++){
@@ -184,8 +185,7 @@ void getFaceElements(std::string filename, Obj &obj){
 					if(editing == EDITING_VERTEX){
 						obj.face[currentFace].vertex[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numVertexPassed - abs(stoi(temp));
 					} else if(editing == EDITING_TEXTURE){
-						obj.face[currentFace].texture[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : obj.numVertex - abs(stoi(temp));
-						//std::cout << obj.face[currentFace].texture[currentVertex] << std::endl;
+						obj.face[currentFace].texture[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numTexturesPassed - abs(stoi(temp));
 					} else if(editing == EDITING_NORMAL){
 						obj.face[currentFace].normal[currentVertex] = (stoi(temp) > 0) ? abs(stoi(temp)) - 1 : numNormalsPassed - abs(stoi(temp));
 					}
@@ -222,7 +222,7 @@ void getTgaNames(std::string filename, Obj& obj){
 		if(id != ""){
 			if(id == "newmtl"){
 				obj.mtl[mtlAtual].name = line;
-			} else{
+			} else if(id == "map_Kd"){
 				obj.mtl[mtlAtual].fileName = line;
 				mtlAtual++;
 			}
@@ -230,7 +230,7 @@ void getTgaNames(std::string filename, Obj& obj){
 	}
 }
 
-void loadTgaFiles(std::string filename, Obj& obj, SDL_Renderer* renderer){
+void loadTgaFiles(std::string filename, Obj& obj){
 	std::string temp, filepath;
 	for(int i = 0; i < filename.size(); i++){
 		temp+=filename[i];
@@ -240,13 +240,13 @@ void loadTgaFiles(std::string filename, Obj& obj, SDL_Renderer* renderer){
 	}
 	for(int i = 0; i < countMtlTextures(filename); i++){
 		const char *filename = (filepath + obj.mtl[i].fileName).c_str();
-		obj.mtl[i].tga = IMG_LoadTexture(renderer, filename);
+		obj.mtl[i].tga = IMG_Load(filename);
 	}
 }
 
 void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture* font){
 	getTgaNames(filename, obj);
-	loadTgaFiles(filename, obj, renderer);
+	loadTgaFiles(filename, obj);
 	countLines(filename, obj);
 	if(!obj.numVertex){return;}
 	obj.vertex = new Point3D[obj.numVertex];
