@@ -10,8 +10,8 @@
 #define MENU_GLDISPLAY 6
 
 #include <iostream>
-const std::string resList[2][12] = {{"640", "800", "1024", "1152", "1280", "1280", "1280", "1280", "1360", "1440", "1600", "1920"},
-								    {"360", "600", "768",  "864",  "720",  "768",  "800",  "1024", "768",  "900",  "900",  "1080"}};
+const std::string resList[2][12] = { { "640", "800", "1024", "1152", "1280", "1280", "1280", "1280", "1360", "1440", "1600", "1920" },
+{ "360", "600", "768",  "864",  "720",  "768",  "800",  "1024", "768",  "900",  "900",  "1080" } };
 
 struct Screen {
 	int x;
@@ -44,16 +44,23 @@ struct Face {
 	unsigned short int* normal;
 };
 
+struct Texture {
+	Point2D coord;
+	std::string material;
+};
+
 struct Obj {
 	int numVertex;
 	int numNormals;
 	int numFaces;
 	int numTextures;
+	int numMtl;
+	unsigned int* textureID;
 	Point3D size;
 	Point3D offset;
 	Point3D* vertex;
 	Point3D* normal;
-	Point2D* texture;
+	Texture* texture;
 	Face* face;
 	Mtl* mtl;
 };

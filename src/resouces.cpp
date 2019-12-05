@@ -20,7 +20,7 @@ void hideConsole(){
 std::string getFileName(){
 	char fileName[MAX_PATH];
 	fileName[259] = NULL;
-	OPENFILENAME winFile;
+	OPENFILENAMEA winFile;
 	ZeroMemory(&fileName, sizeof(fileName));
 	ZeroMemory(&winFile, sizeof(winFile));
 	winFile.lStructSize = sizeof(winFile);
@@ -100,12 +100,14 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 	double maxX = -10000, minX = 10000;
 	double maxY = -10000, minY = 10000;
 	double maxZ = -10000, minZ = 10000;
-	std::string id, x, y, z, w;
+	std::string id, x, y, z, w, currentMaterial;
 	int current = 0;
 	std::ifstream file(filename);
 	while(file >> id){
 		if(id == identifier){
-			if(numElements == 2){
+			if(identifier == "usemtl"){
+				file >> x;
+			} else if(numElements == 2){
 				file >> x >> y;
 			} else if(numElements == 3){
 				file >> x >> y >> z;
@@ -129,9 +131,12 @@ void getVertexElements(std::string filename, Obj &obj, std::string identifier){
 				obj.normal[current].x = stod(x);
 				obj.normal[current].y = stod(y);
 				obj.normal[current].z = stod(z);
+			} else if(identifier == "usemtl"){
+				currentMaterial = x;
 			} else if(identifier == "vt"){
-				obj.texture[current].x = stod(x);
-				obj.texture[current].y = stod(y);
+				obj.texture[current].coord.x = stod(x);
+				obj.texture[current].coord.y = stod(y);
+				obj.texture[current].material = currentMaterial;
 			}
 			current++;
 		}
@@ -209,22 +214,23 @@ int countMtlTextures(std::string filename){
 	return count;
 }
 
-void getTgaNames(std::string filename, Obj& obj){
+void getMaterialNames(std::string filename, Obj& obj){
 	filename[filename.size() -3] = 'm';
 	filename[filename.size() -2] = 't';
 	filename[filename.size() -1] = 'l';
-	obj.mtl = new Mtl[countMtlTextures(filename)];
+	obj.numMtl = countMtlTextures(filename);
+	obj.mtl = new Mtl[obj.numMtl];
 	std::ifstream file(filename);
 	std::string id = "", line;
-	int mtlAtual = 0;
+	int currentMtl = 0;
 	while(file >> id){
 		std::getline(file, line);
 		if(id != ""){
 			if(id == "newmtl"){
-				obj.mtl[mtlAtual].name = line;
+				obj.mtl[currentMtl].name = line;
 			} else if(id == "map_Kd"){
-				obj.mtl[mtlAtual].fileName = line;
-				mtlAtual++;
+				obj.mtl[currentMtl].fileName = line;
+				currentMtl++;
 			}
 		}
 	}
@@ -238,21 +244,22 @@ void loadTgaFiles(std::string filename, Obj& obj){
 			filepath = temp;
 		}
 	}
-	for(int i = 0; i < countMtlTextures(filename); i++){
+	for(int i = 0; i < obj.numMtl; i++){
 		const char *filename = (filepath + obj.mtl[i].fileName).c_str();
 		obj.mtl[i].tga = IMG_Load(filename);
 	}
+	obj.textureID = new unsigned int[obj.numMtl];
 }
 
 void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture* font){
-	getTgaNames(filename, obj);
+	getMaterialNames(filename, obj);
 	loadTgaFiles(filename, obj);
 	countLines(filename, obj);
 	if(!obj.numVertex){return;}
 	obj.vertex = new Point3D[obj.numVertex];
 	obj.normal = new Point3D[obj.numNormals];
 	obj.face = new Face[obj.numFaces];
-	obj.texture = new Point2D[obj.numTextures];
+	obj.texture = new Texture[obj.numTextures];
 	std::string vertexText = "Loaded " + std::to_string(obj.numVertex) + " vertex!";
 	std::string normalText = "Loaded " + std::to_string(obj.numNormals) + " normals!";
 	std::string facesText = "Loaded " + std::to_string(obj.numFaces) + " faces!";
@@ -270,5 +277,5 @@ void loadObj(Obj& obj, std::string filename, SDL_Renderer* renderer, SDL_Texture
 	writeLoadingText(renderer, "Loading textures...", font, 5, 130, 11, 17);
 	getVertexElements(filename, obj, "vt");
 	writeLoadingText(renderer, textureText, font, 5, 150, 11, 17);
-	//SDL_Delay(3000); //This is annoying for debug
+	//SDL_Delay(3000); //This is annoying for debug  //sorry
 }
