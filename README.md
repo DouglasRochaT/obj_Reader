@@ -1,3 +1,6 @@
+
+<img src="https://raw.githubusercontent.com/Keppye/obj_Reader/master/resources/LogoObjReader.png" width="400">
+
 # obj_Reader
 
 obj_Reader is a program written in C++ that reads and displays [.obj files](https://en.wikipedia.org/wiki/Wavefront_.obj_file).
